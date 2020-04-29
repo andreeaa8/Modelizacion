@@ -7,6 +7,7 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -27,24 +28,26 @@ class juego extends JPanel implements ActionListener {
     
     
     Color idPlayer1,idPlayer2;//first player is in red, second one in blue
-    int turn=1;
+    int turn=0;
     int num=0;
     JFrame endGame;
-    boolean end,beguin,found;
-	public juego(int num,boolean begin) {
+    boolean end,beguin,found,cpu;
+	public juego(int num,boolean begin,boolean cpu) {
 		//reset();
 		end=false;
 		this.beguin=begin;
+		this.cpu=cpu;
 		this.num=num;
-		System.out.println("tablero de "+num);
 		if(begin) {
-		idPlayer1=Color.blue;
-		idPlayer2=Color.red;
-		}else {
-		idPlayer2=Color.blue;
-		idPlayer1=Color.red;
-		}
-		
+			idPlayer1=Color.blue;
+			idPlayer2=Color.red;
+			
+			
+			}else {
+			idPlayer2=Color.blue;
+			idPlayer1=Color.red;
+			}
+		System.out.println("tablero de "+num);
 		tablePaint= new Color[num][num];
 		botones= new JButton[num*num];
 		//p= new JTextPane[num*num];
@@ -73,6 +76,8 @@ class juego extends JPanel implements ActionListener {
 				boton1.setContentAreaFilled(false);
 				boton1.setBorderPainted(false);*/
 				JTextPane p = new JTextPane();
+				
+				
 			    //	p[i]=new JTextPane();
 				//Component c1 = parent.getComponent(i+1);
 				
@@ -135,7 +140,7 @@ class juego extends JPanel implements ActionListener {
 						}
 						
 						
-						if(checkWin(tablePaint)|| draw()) {
+						if(checkWin(tablePaint)|| draw() ) {
 							reset();
 							end=true;
 							endGame.setVisible(true);
@@ -145,7 +150,12 @@ class juego extends JPanel implements ActionListener {
 							System.out.println("Has ganado");
 							
 						}else {
+							imprimirTablero();
+							
+							if(cpu) {
+								
 							algorithm(beguin);
+							}
 							
 						}
 						
@@ -155,6 +165,13 @@ class juego extends JPanel implements ActionListener {
 				});
 			
 				add(botones[i]);
+				if(beguin&&i==4&&cpu) {
+					
+					p.setBackground(idPlayer2);
+					tablePaint[1][1]=idPlayer2;
+					turn++;
+					beguin=false;
+				}
 				add(p);
 				
 				
@@ -175,7 +192,11 @@ class juego extends JPanel implements ActionListener {
 		
 
 		*/
-		
+			
+			
+			imprimirTablero();
+			System.out.println(beguin);
+			System.out.println(this.cpu);
 		
 
 	}
@@ -336,52 +357,26 @@ class juego extends JPanel implements ActionListener {
 		
 		
 		
-		if(beguin){
+		if(table[1][1]==Color.white){
 			
 			res=conversionLineTPlain(4);
-			
-			
 			this.beguin=false;
 			botones[4].doClick();
 			
 			
 		}
+		System.out.println(String.valueOf(idPlayer2.getRGB()));
 		
 		if(tablePaint[lastMov[0]][lastMov[1]]!=idPlayer2) {
 			
 			
-		while(i<table.length && !found) {
-			
-			while(j<table[i].length && !found) {
+			if(!(found=whoWins(found, table, idPlayer2))){
 				
-				if(table[i][j]==Color.white) {
-				table[i][j]=idPlayer1;
 				
-				if(checkWin(table)) {
-					
-					found=true;
-					System.out.println("te iba a ganar");
-					botones[conversionPlainToLine(i, j)].doClick();
-					
-					table[i][j]=idPlayer2;
-				}else {
-					
-					table[i][j]=Color.white;
-				}
-				}
+				found=whoWins(found, table, idPlayer1);
 				
-				j++;
 			}
-			j=0;
-			
-			i++;
-		}
-		
-		
-		
-		
-			
-			
+
 			
 			if(!found ) {
 			
@@ -395,10 +390,6 @@ class juego extends JPanel implements ActionListener {
 			}
 			
 		}
-		
-		
-		
-		
 		
 		
 		
@@ -502,6 +493,39 @@ class juego extends JPanel implements ActionListener {
 		
 		return res;
 		
+		
+	}
+	
+	public boolean whoWins(boolean found,Color table[][],Color idPlayer) {
+		int i=0,j=0;
+		
+		while(i<table.length && !found) {
+			
+			while(j<table[i].length && !found) {
+				
+				if(table[i][j]==Color.white) {
+				table[i][j]=idPlayer;
+				
+				if(checkWin(table)) {
+					
+					found=true;
+					System.out.println("te iba a ganar");
+					botones[conversionPlainToLine(i, j)].doClick();
+					
+					//table[i][j]=idPlayer;
+				}else {
+					
+					table[i][j]=Color.white;
+				}
+				}
+				
+				j++;
+			}
+			j=0;
+			
+			i++;
+		}
+		return found;
 		
 	}
 	

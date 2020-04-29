@@ -13,7 +13,8 @@ import javax.swing.JPanel;
 class menuLamina extends JPanel {
 	
 	private int gameMode=3;
-	boolean pushed = false;
+	boolean pushed = false,cpu=true,beguin=false;
+	
 	JComboBox miCombo = new JComboBox();
 	JComboBox miCombo2 = new JComboBox();
 	JComboBox miCombo3 = new JComboBox();
@@ -35,9 +36,11 @@ class menuLamina extends JPanel {
 		
 		miCombo.addItem("3 en raya");
 		miCombo.addItem("4 en raya");
+		miCombo.addItem("nuevo modo");
 		
 		miCombo3.addItem("CPU");
 		miCombo3.addItem("sin CPU");
+		
 
 		miCombo.setMaximumSize(miCombo.getPreferredSize());
 		miCombo3.setMaximumSize(miCombo3.getPreferredSize());
@@ -68,11 +71,15 @@ class menuLamina extends JPanel {
 					
 					System.out.println("cambio a 3");
 					
-				}else {
+				}else if(miCombo.getSelectedItem().equals("4 en raya")) {
 					
 					gameMode=4;
 					
 					System.out.println("cambio a 4");
+				}else {
+					
+					gameMode=1;
+					System.out.println("nuevo 3 en raya");
 				}
 				pushed=true;
 				
@@ -81,6 +88,61 @@ class menuLamina extends JPanel {
 			}
 		});
 		
+		miCombo3.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				if (miCombo3.getSelectedItem().equals("CPU")) {
+					
+					
+					cpu=true;
+					
+					System.out.println("");
+					
+				}else {
+					
+					cpu=false;
+					
+					System.out.println("cambio a 4");
+				}
+				
+				
+				pushed=true;
+				
+			}
+			
+		});
+		
+			miCombo2.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					// TODO Auto-generated method stub
+					
+					if (miCombo2.getSelectedItem().equals("tu")) {
+						
+						
+						beguin=false;
+						
+						System.out.println("tu empiezas ");
+						
+					}else {
+						
+						beguin=true;
+						
+						System.out.println("la maquina empieza");
+					}
+					
+					
+					pushed=true;
+					
+				}
+				
+					
+				
+			});
+					
 		/*
 		 * add(label,BorderLayout.EAST); //add(miCombo,BorderLayout.WEST);
 		 * add(label1,BorderLayout.CENTER);
@@ -112,6 +174,13 @@ class menuLamina extends JPanel {
 
 		return gameMode;
 
+	}
+	public boolean getCpu() {
+		return cpu;
+	}
+	public boolean getBeguin() {
+		
+		return beguin;
 	}
 
 }
