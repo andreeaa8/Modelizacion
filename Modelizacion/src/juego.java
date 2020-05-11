@@ -27,7 +27,8 @@ class juego extends JPanel implements ActionListener {
     int lastMov[];
     
     
-    Color idPlayer1,idPlayer2;//first player is in red, second one in blue
+    Color idPlayer1,idIa;//first player is in red, second one in blue
+    int idJugador1=0,ia=1,fichasIa=3,fichas1=3;
     int turn=0;
     int num=0;
     JFrame endGame;
@@ -40,11 +41,11 @@ class juego extends JPanel implements ActionListener {
 		this.num=num;
 		if(begin) {
 			idPlayer1=Color.blue;
-			idPlayer2=Color.red;
+			idIa=Color.red;
 			
 			
 			}else {
-			idPlayer2=Color.blue;
+			idIa=Color.blue;
 			idPlayer1=Color.red;
 			}
 		System.out.println("tablero de "+num);
@@ -167,8 +168,8 @@ class juego extends JPanel implements ActionListener {
 				add(botones[i]);
 				if(beguin&&i==4&&cpu) {
 					
-					p.setBackground(idPlayer2);
-					tablePaint[1][1]=idPlayer2;
+					p.setBackground(idIa);
+					tablePaint[1][1]=idIa;
 					turn++;
 					beguin=false;
 				}
@@ -200,6 +201,191 @@ class juego extends JPanel implements ActionListener {
 		
 
 	}
+	
+	
+	
+	
+	
+	public  juego(int num, boolean begin, boolean cpu,int a) {
+		// reset();
+		end = false;
+		this.beguin = begin;
+		this.cpu = cpu;
+		this.num = num;
+		if (begin) {
+			idPlayer1 = Color.blue;
+			idIa = Color.red;
+			ia = 0;// jugador 2 es la maquina
+			idJugador1 = 1;
+		} else {
+			idIa = Color.blue;
+			idPlayer1 = Color.red;
+		}
+		System.out.println("tablero de " + num);
+		tablePaint = new Color[num][num];
+		botones = new JButton[num * num];
+		// p= new JTextPane[num*num];
+		int x = 50, y = 30, ancho = 70;
+		int aux = x;
+		// setLayout(new dispositionTable(num));
+		setLayout(null);
+
+		/*
+		 * JButton boton1 = new JButton(); /*boton1.setOpaque(false);
+		 * boton1.setContentAreaFilled(false); boton1.setBorderPainted(false); JTextPane
+		 * p = new JTextPane(); p.setBackground(AZUL_APAGADO);
+		 * 
+		 * boton1.setBounds(50,30,70,70); p.setBounds(50, 30, 70, 70);
+		 */
+		int res[];
+		for (int i = 0; i < num * num; i++) {
+
+			res = conversionLineTPlain(i);
+
+			tablePaint[res[0]][res[1]] = Color.white;
+			botones[i] = new JButton();
+			/*
+			 * boton1.setOpaque(false); boton1.setContentAreaFilled(false);
+			 * boton1.setBorderPainted(false);
+			 */
+			JTextPane p = new JTextPane();
+
+			// p[i]=new JTextPane();
+			// Component c1 = parent.getComponent(i+1);
+
+			if (i % num == 0) {
+				y += ancho;
+				x = aux;
+				botones[i].setBounds(x, y, ancho, ancho);
+				p.setBounds(x, y, ancho, ancho);
+
+			} else {
+
+				x += ancho;
+				botones[i].setBounds(x, y, ancho, ancho);
+				p.setBounds(x, y, ancho, ancho);
+				// System.out.println("holaa");
+			}
+
+			// p.disable();
+			p.setBackground(Color.WHITE);
+			botones[i].setOpaque(false);
+			botones[i].setContentAreaFilled(false);
+			botones[i].setBorderPainted(false);
+			botones[i].setName("" + i);
+			botones[i].addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					// TODO Auto-generated method stub
+
+					Color panel = p.getBackground();
+
+					int res[] = conversionLineTPlain(Integer.parseInt(((JButton) e.getSource()).getName()));
+
+					if (panel == Color.WHITE && !end) {
+						// quita fichas 
+						// player1 id=1, player2 id=2
+						if (turn % 2 == idJugador1 && fichas1 > 0) {
+							
+							lastMov=res;
+							p.setBackground(Color.red);
+							tablePaint[res[0]][res[1]] = Color.red;
+							turn++;
+							fichas1--;
+							
+
+						} else if (turn % 2 == ia && fichasIa > 0) {
+							lastMov=res;
+							p.setBackground(Color.blue);
+							turn++;
+							tablePaint[res[0]][res[1]] = Color.blue;
+							fichasIa--;
+						}
+
+						for (int j = 0; j < res.length - 1; j++) {
+							System.out.println(res[j] + " " + res[j + 1]);
+							System.out.println(conversionPlainToLine(res[0], res[1]));
+
+						}
+
+						lastMov = res;
+
+					}
+
+					//pone Fichas Nuevas
+					if (panel != Color.white && turn % 2 == ia && panel == idIa  ) {
+						
+						fichasIa++;
+
+						tablePaint[res[0]][res[1]] = Color.white;
+						p.setBackground(Color.white);
+
+					}
+					if (panel != Color.white && turn % 2 == idJugador1 && panel == idPlayer1) {
+
+						fichas1++;
+
+						tablePaint[res[0]][res[1]] = Color.white;
+						p.setBackground(Color.white);
+
+					}
+
+					if (checkWin(tablePaint) || draw()) {
+						reset();
+						end = true;
+						endGame.setVisible(true);
+						endGame.setEnabled(true);
+						imprimirTablero();
+
+						System.out.println("Has ganado");
+
+					} else {
+						imprimirTablero();
+
+						/*if (cpu && turn % 2 == idJugador2) {
+
+							algorithm(beguin);
+						}*/
+
+					}
+
+				}
+
+			});
+
+			add(botones[i]);
+			if (beguin && i == 4 && cpu) {
+
+				p.setBackground(idIa);
+				tablePaint[1][1] = idIa;
+				turn++;
+				beguin = false;
+			}
+			add(p);
+
+		}
+
+		/*
+		 * for (int i = 0; i < tablePaint.length; i++) {
+		 * 
+		 * for (int j = 0; j < tablePaint.length; j++) {
+		 * 
+		 * tablePaint[i][j]=Color.white;
+		 * 
+		 * }
+		 * 
+		 * }
+		 * 
+		 * 
+		 */
+
+		imprimirTablero();
+		System.out.println(beguin);
+		System.out.println(this.cpu);
+
+	}
+	
 	
 	
 
@@ -365,12 +551,12 @@ class juego extends JPanel implements ActionListener {
 			
 			
 		}
-		System.out.println(String.valueOf(idPlayer2.getRGB()));
+		System.out.println(String.valueOf(idIa.getRGB()));
 		
-		if(tablePaint[lastMov[0]][lastMov[1]]!=idPlayer2) {
+		if(tablePaint[lastMov[0]][lastMov[1]]!=idIa) {
 			
 			
-			if(!(found=whoWins(found, table, idPlayer2))){
+			if(!(found=whoWins(found, table, idIa))){
 				
 				
 				found=whoWins(found, table, idPlayer1);

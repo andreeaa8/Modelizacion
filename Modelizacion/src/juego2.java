@@ -29,11 +29,11 @@ class juego2 extends JPanel implements ActionListener {
 	// JTextPane p[];
 	int lastMov[];
 
-	Color idPlayer1, idPlayer2;// first player is in red, second one in blue
+	Color idPlayer1, idIa;// first player is in red, second one in blue
 	int turn = 0;
 	int num = 0;
 	int fichas1 = 3, fichas2 = 3;
-	int idJugador1 = 0, idJugador2 = 1;
+	int idJugador1 = 0, ia = 1;
 	JFrame endGame;
 	boolean end, beguin, found, cpu;
 
@@ -45,11 +45,11 @@ class juego2 extends JPanel implements ActionListener {
 		this.num = num;
 		if (begin) {
 			idPlayer1 = Color.blue;
-			idPlayer2 = Color.red;
-			idJugador2 = 0;// jugador 2 es la maquina
+			idIa = Color.red;
+			ia = 0;// jugador 2 es la maquina
 			idJugador1 = 1;
 		} else {
-			idPlayer2 = Color.blue;
+			idIa = Color.blue;
 			idPlayer1 = Color.red;
 		}
 		System.out.println("tablero de " + num);
@@ -115,17 +115,19 @@ class juego2 extends JPanel implements ActionListener {
 					int res[] = conversionLineTPlain(Integer.parseInt(((JButton) e.getSource()).getName()));
 
 					if (panel == Color.WHITE && !end) {
-
+						// quita fichas 
 						// player1 id=1, player2 id=2
 						if (turn % 2 == idJugador1 && fichas1 > 0) {
-
+							
+							lastMov=res;
 							p.setBackground(Color.red);
 							tablePaint[res[0]][res[1]] = Color.red;
 							turn++;
 							fichas1--;
+							
 
-						} else if (turn % 2 == idJugador2 && fichas2 > 0) {
-
+						} else if (turn % 2 == ia && fichas2 > 0) {
+							lastMov=res;
 							p.setBackground(Color.blue);
 							turn++;
 							tablePaint[res[0]][res[1]] = Color.blue;
@@ -142,8 +144,9 @@ class juego2 extends JPanel implements ActionListener {
 
 					}
 
-					if (panel != Color.white && turn % 2 == idJugador2 && panel == idPlayer2) {
-
+					//pone Fichas Nuevas
+					if (panel != Color.white && turn % 2 == ia && panel == idIa  ) {
+						
 						fichas2++;
 
 						tablePaint[res[0]][res[1]] = Color.white;
@@ -185,8 +188,8 @@ class juego2 extends JPanel implements ActionListener {
 			add(botones[i]);
 			if (beguin && i == 4 && cpu) {
 
-				p.setBackground(idPlayer2);
-				tablePaint[1][1] = idPlayer2;
+				p.setBackground(idIa);
+				tablePaint[1][1] = idIa;
 				turn++;
 				beguin = false;
 			}
@@ -346,9 +349,9 @@ class juego2 extends JPanel implements ActionListener {
 			botones[4].doClick();
 
 		}
-		System.out.println(String.valueOf(idPlayer2.getRGB()));
+		System.out.println(String.valueOf(idIa.getRGB()));
 
-		if (tablePaint[lastMov[0]][lastMov[1]] != idPlayer2) {
+		if (tablePaint[lastMov[0]][lastMov[1]] != idIa) {
 
 			while (i < table.length && !found) {
 
@@ -363,7 +366,7 @@ class juego2 extends JPanel implements ActionListener {
 							System.out.println("te iba a ganar");
 							botones[conversionPlainToLine(i, j)].doClick();
 
-							table[i][j] = idPlayer2;
+							table[i][j] = idIa;
 						} else {
 
 							table[i][j] = Color.white;
@@ -406,6 +409,25 @@ class juego2 extends JPanel implements ActionListener {
 		System.out.println("return: " + (x * num + y));
 		return x * num + y;
 
+	}
+	
+	private boolean isNearLastMov() {
+		
+		Color [][] aux = tableAux();
+		
+		int [][] positions = new int[num][num];
+		
+		for (int i = 0; i < positions.length; i++) {
+			
+			
+			
+		}
+		
+		
+		
+		
+		return false;
+		
 	}
 
 	int[] nearLastMov() {

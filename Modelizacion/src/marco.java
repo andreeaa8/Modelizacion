@@ -1,4 +1,5 @@
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -10,8 +11,7 @@ import javax.swing.JPanel;
 class marco extends JPanel implements ActionListener{
 	
 	private boolean pushed=false;
-	juego game1;
-	juego2 game2;
+	juego game;
 	menuLamina m;
 	JButton txt = new JButton("empezar");
 	public marco() {
@@ -27,21 +27,18 @@ class marco extends JPanel implements ActionListener{
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
 				m.button.doClick();
-				remove(game1);
+				remove(game);
+				
 				System.out.println("he entrado");
 				if(m.getgameMode()>=3) {
+					game= new juego(m.getgameMode(),m.getBeguin(),m.getCpu());
+					add(game,BorderLayout.CENTER);
 					
-					game1= new juego(m.getgameMode(),m.getBeguin(),m.getCpu());
-					
-					add(game1,BorderLayout.CENTER);
 					
 					}else {
 						
-						game2= new juego2(3,m.getBeguin(),m.getCpu());
-						
-						add(game2,BorderLayout.CENTER);
-						
-						
+						game= new juego(3,m.getBeguin(),m.getCpu(),1);
+						add(game,BorderLayout.CENTER);			
 					}
 				txt.setText("reiniciar");
 				revalidate();
@@ -73,14 +70,14 @@ class marco extends JPanel implements ActionListener{
 		
 		add(m,BorderLayout.EAST);
 		
-		 game1 = new juego(3,m.getBeguin(),m.getCpu());
+		 game = new juego(3,m.getBeguin(),m.getCpu());
 		//add(j,BorderLayout.CENTER);
 		
 		//j.setBounds(50, 30, 600, 610);
 		
 	
 		
-		add(game1,BorderLayout.CENTER);
+		add(game,BorderLayout.CENTER);
 		
 		
 		//add(new gameInfo(), BorderLayout.WEST);
@@ -99,7 +96,21 @@ class marco extends JPanel implements ActionListener{
 	
 
 
-	
+	void removeComponents(JPanel panel) {
+		
+		
+		for (Component component : panel.getComponents()) {
+			
+			component.setEnabled(false);
+			remove(component);
+			
+			
+		}
+		
+		
+		
+		
+	}
 	
 
 	
