@@ -6,7 +6,9 @@ import java.awt.Graphics;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.JButton;
@@ -26,9 +28,9 @@ class juego extends JPanel implements ActionListener {
     //JTextPane p[];
     int lastMov[];
     
-    
+   
     Color idPlayer1,idIa;//first player is in red, second one in blue
-    int idJugador1=0,ia=1,fichasIa=3,fichas1=3;
+    int humano=0,ia=1,fichasIa=3,fichas1=3;
     int turn=0;
     int num=0;
     JFrame endGame;
@@ -154,8 +156,8 @@ class juego extends JPanel implements ActionListener {
 							imprimirTablero();
 							
 							if(cpu) {
-								
-							algorithm(beguin);
+							minimax(tablePaint,0,false,turn);	
+							//algorithm(beguin);
 							}
 							
 						}
@@ -216,7 +218,7 @@ class juego extends JPanel implements ActionListener {
 			idPlayer1 = Color.blue;
 			idIa = Color.red;
 			ia = 0;// jugador 2 es la maquina
-			idJugador1 = 1;
+			humano = 1;
 		} else {
 			idIa = Color.blue;
 			idPlayer1 = Color.red;
@@ -286,7 +288,7 @@ class juego extends JPanel implements ActionListener {
 					if (panel == Color.WHITE && !end) {
 						// quita fichas 
 						// player1 id=1, player2 id=2
-						if (turn % 2 == idJugador1 && fichas1 > 0) {
+						if (turn % 2 == humano && fichas1 > 0) {
 							
 							lastMov=res;
 							p.setBackground(Color.red);
@@ -322,7 +324,7 @@ class juego extends JPanel implements ActionListener {
 						p.setBackground(Color.white);
 
 					}
-					if (panel != Color.white && turn % 2 == idJugador1 && panel == idPlayer1) {
+					if (panel != Color.white && turn % 2 == humano && panel == idPlayer1) {
 
 						fichas1++;
 
@@ -705,12 +707,6 @@ class juego extends JPanel implements ActionListener {
 		
 		Color[][] table = tablePaint;
 		
-		
-		
-		
-		
-		
-		
 		if(table[1][1]==Color.white){
 			
 			res=conversionLineTPlain(4);
@@ -874,7 +870,7 @@ class juego extends JPanel implements ActionListener {
 				if(checkWin(table)) {
 					
 					found=true;
-					System.out.println("te iba a ganar");
+					System.out.println("Te iba a ganar");
 					botones[conversionPlainToLine(i, j)].doClick();
 					
 					//table[i][j]=idPlayer;
@@ -907,6 +903,83 @@ class juego extends JPanel implements ActionListener {
 			System.out.println("");
 			
 		}
+	}
+	
+	private static int getRandomNumberRange( int min, int max) {		
+		Random r= new Random();
+		return r.nextInt((max - min) + 1) + min;
+	}
+	
+	
+	public void nextTurn(){
+		ArrayList<Posicion> let= new ArrayList<Posicion>();
+		for(int i=0;i<3;i++) {
+			for( int j=0; j<3; j++) {
+				if(tablePaint[i][j]==Color.white) {
+					let.add(new Posicion(i,j));
+				}
+			}
+		}
+		Posicion move;
+		int randomInt= getRandomNumberRange(0,let.size()-1);
+		move=let.get(randomInt);
+		tablePaint[move.getI()][move.getJ()]= idIa;
+		turn+=1;	
+	}
+	
+	public void bestMove(){
+		Color [][] colores=tablePaint.clone();
+		ArrayList<Posicion> let= new ArrayList<Posicion>();
+		int bestScore=(int)Double.NEGATIVE_INFINITY ;
+		Posicion move;
+		for(int i=0;i<3;i++) {
+			for( int j=0; j<3; j++) {
+				if(colores[i][j]==Color.white) {
+					colores[i][j]= idIa;
+					int score=minimax(colores,0,false, turn);
+					colores[i][j]=Color.white;
+					if(score > bestScore) {
+						bestScore= score;
+						move=new Posicion(i,j);
+						
+						
+					}
+				}
+			}
+		}
+		
+		int randomInt= getRandomNumberRange(0,let.size()-1);
+		move=let.get(randomInt);
+		colores[move.getI()][move.getJ()]= idIa;
+		turn+=1;	
+	}
+	
+	
+	
+	public int minimax (Color[][] tablero, int depth, boolean isMaximizing, int turno) {
+		Color [][] colores=tablePaint.clone();
+		boolean result= checkWin(colores); //si alguien ha ganado
+		int score;
+		if(result) { // si es que si (true)
+			if(turno%2==ia) {
+				score=1;
+			}
+			else {
+				score=-1;
+			}
+			
+		}
+			
+		if(isMaximizing) {
+			for(int i=0;i<3;i++) {
+				for( int j=0; j<3; j++) {
+					if(colores[i][j]==Color.white) {
+						colores[i][j]= idIa;
+					}
+				}
+			}
+		}
+		return 1;
 	}
 	
 	
