@@ -30,11 +30,12 @@ class marco extends JPanel implements ActionListener{
 				remove(game);
 				
 				System.out.println("he entrado");
-				if(m.getgameMode()>=3) {
+				if(m.getgameMode()==3) {
 					game= new juego(m.getgameMode(),m.getBeguin(),m.getCpu());
 					add(game,BorderLayout.CENTER);
-					
-					
+				}else if(m.getgameMode()==6) {
+						game= new juego(m.getgameMode(),m.getBeguin(),m.getCpu(),'a');
+						add(game,BorderLayout.CENTER);
 					}else {
 						
 						game= new juego(3,m.getBeguin(),m.getCpu(),1);

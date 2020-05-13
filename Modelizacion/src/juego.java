@@ -386,7 +386,175 @@ class juego extends JPanel implements ActionListener {
 
 	}
 	
-	
+	public juego(int num,boolean begin,boolean cpu,char ch) {
+		//reset();
+		end=false;
+		this.beguin=begin;
+		this.cpu=cpu;
+		this.num=num;
+		if(begin) {
+			idPlayer1=Color.blue;
+			idIa=Color.red;
+			
+			
+			}else {
+			idIa=Color.blue;
+			idPlayer1=Color.red;
+			}
+		System.out.println("tablero de conecta");
+		System.out.println("->>"+num);
+		tablePaint= new Color[num][7];
+		botones= new JButton[num*7];
+		//p= new JTextPane[num*num];
+		int x=50,y=30,ancho=70;
+		int aux=x;
+		//setLayout(new dispositionTable(num));
+		setLayout(null);
+		
+			/*JButton boton1 = new JButton();
+			/*boton1.setOpaque(false);
+			boton1.setContentAreaFilled(false);
+			boton1.setBorderPainted(false);
+			JTextPane p = new JTextPane();
+			p.setBackground(AZUL_APAGADO);
+			
+			boton1.setBounds(50,30,70,70);
+			p.setBounds(50, 30, 70, 70);*/
+			int res[];
+			for (int i = 0; i < num*7; i++) {
+				
+				res=conversionLineTPlainConnect4(i);
+				System.out.println("Res:"+i);
+				tablePaint[res[0]][res[1]]=Color.white;
+				botones[i] = new JButton();
+				/*boton1.setOpaque(false);
+				boton1.setContentAreaFilled(false);
+				boton1.setBorderPainted(false);*/
+				JTextPane p = new JTextPane();
+				
+				
+			    //	p[i]=new JTextPane();
+				//Component c1 = parent.getComponent(i+1);
+				
+				if(i%7==0) {
+				y+=ancho;
+				x=aux;
+				botones[i].setBounds(x,y,ancho,ancho);
+				p.setBounds(x,y,ancho,ancho);
+
+				}else {
+					
+				x+=ancho;
+				botones[i].setBounds(x,y,ancho,ancho);
+				p.setBounds(x, y, ancho, ancho);
+					//System.out.println("holaa");
+				}
+				
+				//p.disable();
+				p.setBackground(Color.WHITE);
+				botones[i].setOpaque(false);
+				botones[i].setContentAreaFilled(false);
+				botones[i].setBorderPainted(false);
+				botones[i].setName(""+i);
+				botones[i].addActionListener(new ActionListener() {
+					
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						// TODO Auto-generated method stub
+						
+						Color panel =p.getBackground();
+						
+			
+						
+						if(panel==Color.WHITE && !end) {
+							int res[]=conversionLineTPlain(Integer.parseInt(((JButton)e.getSource()).getName()));
+							
+							if(turn%2==0) {
+								
+								p.setBackground(Color.red);
+								tablePaint[res[0]][res[1]]=Color.red;
+								turn++;
+								
+							}else {
+								p.setBackground(Color.blue);
+								turn++;
+								tablePaint[res[0]][res[1]]=Color.blue;
+								
+							}
+							
+							
+							for (int j = 0; j < res.length-1; j++) {
+								System.out.println(res[j]+" "+res[j+1]);
+								System.out.println(conversionPlainToLine(res[0], res[1]));
+								
+								
+							}
+							
+							lastMov=res;
+							
+						}
+						
+						
+						if(checkWin(tablePaint)|| draw() ) {
+							reset();
+							end=true;
+							endGame.setVisible(true);
+							endGame.setEnabled(true);
+							imprimirTablero();
+							
+							System.out.println("Has ganado");
+							
+						}else {
+							imprimirTablero();
+							
+							if(cpu) {
+								
+							algorithm(beguin);
+							}
+							
+						}
+						
+					}
+
+					
+				});
+			
+				add(botones[i]);
+				if(beguin&&i==4&&cpu) {
+					
+					p.setBackground(idIa);
+					tablePaint[1][1]=idIa;
+					turn++;
+					beguin=false;
+				}
+				add(p);
+				
+				
+			}
+			
+			
+			
+			/*
+			for (int i = 0; i < tablePaint.length; i++) {
+				
+				for (int j = 0; j < tablePaint.length; j++) {
+					
+					tablePaint[i][j]=Color.white;
+					
+				}
+				
+			}
+		
+
+		*/
+			
+			
+			imprimirTablero();
+			System.out.println(beguin);
+			System.out.println(this.cpu);
+		
+
+	}
 	
 
 	public Map<Integer, JButton> getList() {
@@ -578,6 +746,17 @@ class juego extends JPanel implements ActionListener {
 		}
 		
 		
+		
+	}
+	
+	int [] conversionLineTPlainConnect4(int i) {
+		int res[]= new int[2];
+		
+		res[0]=i/7;//fila
+		System.out.println(res[0]);
+		res[1]=i%7;//columna
+		System.out.println(res[1]);
+		return res;
 		
 	}
 	

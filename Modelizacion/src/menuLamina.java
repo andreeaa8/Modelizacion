@@ -73,7 +73,7 @@ class menuLamina extends JPanel {
 					
 				}else if(miCombo.getSelectedItem().equals("4 en raya")) {
 					
-					gameMode=4;
+					gameMode=6;
 					
 					System.out.println("cambio a 4");
 				}else {
