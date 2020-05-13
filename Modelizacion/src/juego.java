@@ -967,22 +967,40 @@ class juego extends JPanel implements ActionListener {
 			else {
 				score=-1;
 			}
+			return score;
 			
 		}
 			
 		if(isMaximizing) {
+			int bestScore=(int)Double.NEGATIVE_INFINITY ;
 			for(int i=0;i<3;i++) {
 				for( int j=0; j<3; j++) {
 					if(colores[i][j]==Color.white) {
 						colores[i][j]= idIa;
+						score= minimax(colores, depth+1, false, turno);
+						colores[i][j]= Color.white;
+						bestScore= Math.max(score, bestScore);
 					}
 				}
+				
 			}
+			return bestScore;
+		} else {
+			int bestScore=(int)Double.POSITIVE_INFINITY ;
+			for(int i=0;i<3;i++) {
+				for( int j=0; j<3; j++) {
+					if(colores[i][j]==Color.white) {
+						colores[i][j]= idPlayer1;
+						score= minimax(colores, depth+1, true, turno);
+						colores[i][j]= Color.white;
+						bestScore= Math.min(score, bestScore);
+					}
+				}
+				
+			}
+			return bestScore;
+			
 		}
-		return 1;
+	
 	}
-	
-	
-
-
 }
