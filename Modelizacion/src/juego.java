@@ -886,5 +886,28 @@ class juego extends JPanel implements ActionListener {
 		
 		return pos;
 	}
+	
+	public void estrategiaGanadora() {
+		
+		
+		
+		
+		
+	}
+	
+	int[] opposite(int i,int j) {
+		
+		int res[]= new int[2];
+		Arrays.fill(res,1);
+		
+		if(i==1||j==1) {
+			
+			
+			
+			
+		}
+		
+		return null;
+	}
 
 }
