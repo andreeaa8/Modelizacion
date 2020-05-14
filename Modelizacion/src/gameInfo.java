@@ -6,23 +6,26 @@ class gameInfo extends JPanel {
 
 	private String info;
 
-	public gameInfo(int num, boolean draw) {
+	public gameInfo(boolean player2, boolean checkWin) {
 		// TODO Auto-generated constructor stub
 		setBorder(BorderFactory.createEmptyBorder(10, 10, 5, 10));
 		JLabel textInfo;
 
-		if (draw) {
-			textInfo = new JLabel("Empate");
+		if (checkWin) {
+			
+			if (!player2) {
 
-		} else {
-			if (num == 0) {
-
-				textInfo = new JLabel("Has ganado");
+				textInfo = new JLabel("Ha ganado jugador 2");
 			} else {
 
-				textInfo = new JLabel("Has perdido");
+				textInfo = new JLabel("Ha ganado jugador 1");
 
 			}
+			
+
+		} else {
+			textInfo = new JLabel("Empate");
+			
 		}
 
 		add(textInfo);

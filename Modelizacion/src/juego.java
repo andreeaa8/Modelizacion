@@ -32,62 +32,26 @@ class juego extends JPanel implements ActionListener {
 	int lastMov[], levels[];
 
 	Color colorHumano, idIa;// first player is in red, second one in blue
-	int humano = 0, ia = 1, fichasIa = 3, fichas1 = 3;
+	int humano =0, ia = 1, fichasIa = 3, fichas1 = 3;
 	int turn = 0;
 	int num = 0;
 	JFrame endGame;
 	boolean end, beguin, found, cpu;
+	int mode;
 
-	public juego(int num, boolean begin, boolean cpu) {
-		// reset();
-		end = false;
-		this.beguin = begin;
-		this.cpu = cpu;
-		this.num = num;
-		if (begin) {
-			colorHumano = Color.blue;
-			idIa = Color.red;
-
-		} else {
-			idIa = Color.blue;
-			colorHumano = Color.red;
-		}
-		System.out.println("tablero de " + num);
-		tablePaint = new Color[num][num];
-		botones = new JButton[num * num];
-		// p= new JTextPane[num*num];
-		int x = 50, y = 30, ancho = 70;
-		int aux = x;
-		// setLayout(new dispositionTable(num));
-	private Map<Integer,JTextPane> listPane;
-    private Color tablePaint[][]; 
-    private JButton botones[];
-    JButton bb;
-    Color AZUL_APAGADO= new Color(192,192,130);
-    //JTextPane p[];
-    int lastMov[];
-    
-   
-    Color idPlayer1,idIa;//first player is in red, second one in blue
-    int humano=0,ia=1,fichasIa=3,fichas1=3;
-    int turn=0;
-    int num=0;
-    JFrame endGame;
-    boolean end,beguin,found,cpu;
 	public juego(int num,boolean begin,boolean cpu) {
 		//reset();
 		end=false;
 		this.beguin=begin;
 		this.cpu=cpu;
 		this.num=num;
+		this.mode=0;
 		if(begin) {
-			idPlayer1=Color.blue;
+			colorHumano=Color.blue;
 			idIa=Color.red;
-			
-			
 			}else {
 			idIa=Color.blue;
-			idPlayer1=Color.red;
+			colorHumano=Color.red;
 			}
 		System.out.println("tablero de "+num);
 		tablePaint= new Color[num][num];
@@ -223,17 +187,18 @@ class juego extends JPanel implements ActionListener {
 
 	}
 
-	public juego(int num, boolean begin, boolean cpu, int a) {
+	public juego(int num, boolean begin, boolean cpu, int mode) {
 		// reset();
 		end = false;
 		this.beguin = begin;
 		this.cpu = cpu;
 		this.num = num;
+		this.mode=1;
 		if (begin) {
 			colorHumano = Color.red;
 			idIa = Color.blue;
 			ia = 0;// jugador 2 es la maquina
-			humano = 1;
+			humano =1;
 		} else {
 			idIa = Color.blue;
 			colorHumano = Color.red;
@@ -303,13 +268,11 @@ class juego extends JPanel implements ActionListener {
 					if (panel == Color.WHITE && !end) {
 						// quita fichas
 						// player1 id=1, player2 id=2
-						if (turn % 2 == humano && fichas1 > 0) {
-
-							lastMov = res;
+						
 						if (turn % 2 == humano && fichas1 > 0) {
 							
 							lastMov=res;
-							p.setBackground(Color.red);
+  							p.setBackground(Color.red);
 							tablePaint[res[0]][res[1]] = Color.red;
 							turn++;
 							fichas1--;
@@ -339,10 +302,10 @@ class juego extends JPanel implements ActionListener {
 
 						tablePaint[res[0]][res[1]] = Color.white;
 						p.setBackground(Color.white);
+						
 
 					}
 					if (panel != Color.white && turn % 2 == humano && panel == colorHumano) {
-					if (panel != Color.white && turn % 2 == humano && panel == idPlayer1) {
 
 						fichas1++;
 
@@ -377,7 +340,7 @@ class juego extends JPanel implements ActionListener {
 
 				}
 
-			});
+					});
 
 			add(botones[i]);
 			if (beguin && i == 4 && cpu) {
@@ -385,6 +348,7 @@ class juego extends JPanel implements ActionListener {
 				p.setBackground(idIa);
 				tablePaint[1][1] = idIa;
 				turn++;
+				fichasIa--;
 				beguin = false;
 			}
 			add(p);
@@ -693,7 +657,7 @@ class juego extends JPanel implements ActionListener {
 
 		});
 		endGame.add(reiniciar, BorderLayout.SOUTH);
-		endGame.add(new gameInfo(turn % 2, draw()), BorderLayout.CENTER);
+		endGame.add(new gameInfo(turn % 2==ia,checkWin(tablePaint)), BorderLayout.CENTER);
 		endGame.setEnabled(false);
 
 	}
@@ -848,27 +812,7 @@ class juego extends JPanel implements ActionListener {
 
 	}
 
-	public boolean whoWins(boolean found, Color table[][], Color idPlayer) {
-		int i = 0, j = 0;
 
-		while (i < table.length && !found) {
-
-			while (j < table[i].length && !found) {
-
-				if (table[i][j] == Color.white) {
-					table[i][j] = idPlayer;
-
-					if (checkWin(table)) {
-
-						found = true;
-						System.out.println("te iba a ganar");
-						botones[conversionPlainToLine(i, j)].doClick();
-
-						// table[i][j]=idPlayer;
-					} else {
-
-						table[i][j] = Color.white;
-					}
 	
 	public boolean whoWins(boolean found,Color table[][],Color idPlayer) {
 		int i=0,j=0;
@@ -881,9 +825,11 @@ class juego extends JPanel implements ActionListener {
 				table[i][j]=idPlayer;
 				
 				if(checkWin(table)) {
-					
 					found=true;
+					
+					
 					System.out.println("Te iba a ganar");
+					System.out.println(i+":"+j);
 					botones[conversionPlainToLine(i, j)].doClick();
 					
 					//table[i][j]=idPlayer;
@@ -892,14 +838,18 @@ class juego extends JPanel implements ActionListener {
 					table[i][j]=Color.white;
 				}
 
-				j++;
+				
 			}
+				j++;
+			
+		}
 			j = 0;
 
 			i++;
-		}
-		return found;
 
+	}
+		return found;
+		
 	}
 
 	public void imprimirTablero() {
@@ -944,7 +894,13 @@ class juego extends JPanel implements ActionListener {
 		
 		boolean move= false;
 		
-		Color[][]table = tablePaint.clone();
+		Color[][]table= new Color[num][num];
+		
+		for (int i = 0; i < table.length; i++) {
+			
+			table[i]=Arrays.copyOf(tablePaint[i], num);
+			
+		}
 		
 		if(tablePaint[1][1]==Color.white && fichasIa>0) {
 			
@@ -1127,7 +1083,7 @@ class juego extends JPanel implements ActionListener {
 			for(int i=0;i<3;i++) {
 				for( int j=0; j<3; j++) {
 					if(colores[i][j]==Color.white) {
-						colores[i][j]= idPlayer1;
+						colores[i][j]= colorHumano;
 						score= minimax(colores, depth+1, true, turno);
 						colores[i][j]= Color.white;
 						bestScore= Math.min(score, bestScore);
