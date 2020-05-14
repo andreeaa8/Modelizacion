@@ -7,6 +7,7 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -28,7 +29,7 @@ class juego extends JPanel implements ActionListener {
 	// JTextPane p[];
 	int lastMov[], levels[];
 
-	Color idPlayer1, idIa;// first player is in red, second one in blue
+	Color colorHumano, idIa;// first player is in red, second one in blue
 	int humano = 0, ia = 1, fichasIa = 3, fichas1 = 3;
 	int turn = 0;
 	int num = 0;
@@ -42,12 +43,12 @@ class juego extends JPanel implements ActionListener {
 		this.cpu = cpu;
 		this.num = num;
 		if (begin) {
-			idPlayer1 = Color.blue;
+			colorHumano = Color.blue;
 			idIa = Color.red;
 
 		} else {
 			idIa = Color.blue;
-			idPlayer1 = Color.red;
+			colorHumano = Color.red;
 		}
 		System.out.println("tablero de " + num);
 		tablePaint = new Color[num][num];
@@ -197,13 +198,13 @@ class juego extends JPanel implements ActionListener {
 		this.cpu = cpu;
 		this.num = num;
 		if (begin) {
-			idPlayer1 = Color.blue;
-			idIa = Color.red;
+			colorHumano = Color.red;
+			idIa = Color.blue;
 			ia = 0;// jugador 2 es la maquina
 			humano = 1;
 		} else {
 			idIa = Color.blue;
-			idPlayer1 = Color.red;
+			colorHumano = Color.red;
 		}
 		System.out.println("tablero de " + num);
 		tablePaint = new Color[num][num];
@@ -305,7 +306,7 @@ class juego extends JPanel implements ActionListener {
 						p.setBackground(Color.white);
 
 					}
-					if (panel != Color.white && turn % 2 == humano && panel == idPlayer1) {
+					if (panel != Color.white && turn % 2 == humano && panel == colorHumano) {
 
 						fichas1++;
 
@@ -326,11 +327,15 @@ class juego extends JPanel implements ActionListener {
 					} else {
 						imprimirTablero();
 
-						/*
-						 * if (cpu && turn % 2 == idJugador2) {
-						 * 
-						 * algorithm(beguin); }
-						 */
+						
+						  if (cpu && turn % 2 == ia) {
+						  
+						  //algorithm(beguin);
+							estrategiaGanadora();
+						  
+						  }
+						 
+						  
 
 					}
 
@@ -369,7 +374,7 @@ class juego extends JPanel implements ActionListener {
 		System.out.println(this.cpu);
 
 	}
-
+	//Conecta4
 	public juego(int num, boolean begin, boolean cpu, char ch) {
 		// reset();
 		end = false;
@@ -378,12 +383,12 @@ class juego extends JPanel implements ActionListener {
 		this.num = num;
 		this.levels = new int[7];
 		if (begin) {
-			idPlayer1 = Color.blue;
+			colorHumano = Color.blue;
 			idIa = Color.red;
 
 		} else {
 			idIa = Color.blue;
-			idPlayer1 = Color.red;
+			colorHumano = Color.red;
 		}
 		System.out.println("tablero de conecta");
 		System.out.println("->>" + num);
@@ -407,7 +412,7 @@ class juego extends JPanel implements ActionListener {
 
 		int res[];
 		for (int i = 0; i < num * 7; i++) {
-			
+
 			res = conversionLineTPlainConnect4(i);
 			System.out.println("Res:" + i);
 			tablePaint[res[0]][res[1]] = Color.white;
@@ -447,73 +452,64 @@ class juego extends JPanel implements ActionListener {
 				public void actionPerformed(ActionEvent e) {
 					// TODO Auto-generated method stub
 					int arrayAux[] = new int[2];
-					Arrays.fill(arrayAux,-1);
+					Arrays.fill(arrayAux, -1);
 					Color panel = p.getBackground();
 
 					if (panel == Color.WHITE && !end) {
 						int res[] = conversionLineTPlainConnect4(Integer.parseInt(((JButton) e.getSource()).getName()));
 						int pos[] = availableConnect4(res[1]);
-						
-						
-						if(Arrays.equals(pos,res)) {
-						if (turn% 2 ==ia) {
 
-							p.setBackground(Color.red);
-							tablePaint[pos[0]][pos[1]] = Color.red;
-							turn++;
-							
-						
+						if (Arrays.equals(pos, res)) {
+							if (turn % 2 == ia) {
 
-						} else{
-							
-							p.setBackground(Color.blue);
-							turn++;
-							tablePaint[res[0]][res[1]] = Color.blue;
-							
+								p.setBackground(Color.red);
+								tablePaint[pos[0]][pos[1]] = Color.red;
+								turn++;
 
-						}
+							} else {
 
-						for (int j = 0; j < res.length - 1; j++) {
-							System.out.println(res[j] + " " + res[j + 1]);
-							System.out.println(conversionPlaneToLineConnect4(res[0], res[1]));
+								p.setBackground(Color.blue);
+								turn++;
+								tablePaint[res[0]][res[1]] = Color.blue;
 
-						}
-
-						lastMov = res;
-						if (checkWin(tablePaint) || draw()) {
-							reset();
-							end = true;
-							endGame.setVisible(true);
-							endGame.setEnabled(true);
-							imprimirTablero();
-
-							System.out.println("Has ganado");
-
-						} else {
-							imprimirTablero();
-
-							if (cpu) {
-
-								//algorithm(beguin);
 							}
 
+							for (int j = 0; j < res.length - 1; j++) {
+								System.out.println(res[j] + " " + res[j + 1]);
+								System.out.println(conversionPlaneToLineConnect4(res[0], res[1]));
+
+							}
+
+							lastMov = res;
+							if (checkWin(tablePaint) || draw()) {
+								reset();
+								end = true;
+								endGame.setVisible(true);
+								endGame.setEnabled(true);
+								imprimirTablero();
+
+								System.out.println("Has ganado");
+
+							} else {
+								imprimirTablero();
+
+								if (cpu) {
+
+									// algorithm(beguin);
+								}
+
+							}
+
+						} else if (!Arrays.equals(pos, arrayAux)) {
+
+							System.out.println("me va a la posicion" + pos[0] + "_" + pos[1]);
+							botones[conversionPlaneToLineConnect4(pos[0], pos[1])].doClick();
+
 						}
 
-					}else if(!Arrays.equals(pos,arrayAux)){
-						
-					System.out.println("me va a la posicion"+pos[0]+"_"+pos[1]);
-					botones[conversionPlaneToLineConnect4(pos[0],pos[1])].doClick();
-					
-					
 					}
-					
-					
-
-					
-
-				
-
-					}}});
+				}
+			});
 
 			add(botones[i]);
 			if (beguin && i == 4 && cpu) {
@@ -670,7 +666,7 @@ class juego extends JPanel implements ActionListener {
 		int res[] = new int[2], i = 0, j = 0;
 		boolean found = false;
 
-		Color[][] table = tablePaint;
+		Color[][] table = tablePaint.clone();
 
 		if (table[1][1] == Color.white) {
 
@@ -685,7 +681,7 @@ class juego extends JPanel implements ActionListener {
 
 			if (!(found = whoWins(found, table, idIa))) {
 
-				found = whoWins(found, table, idPlayer1);
+				found = whoWins(found, table, colorHumano);
 
 			}
 
@@ -730,10 +726,10 @@ class juego extends JPanel implements ActionListener {
 		return x * num + y;
 
 	}
-	
-	int conversionPlaneToLineConnect4(int x,int y) {
+
+	int conversionPlaneToLineConnect4(int x, int y) {
 		System.out.println("return: " + (x * num + y));
-		return x*7+y;
+		return x * 7 + y;
 	}
 
 	int[] nearLastMov() {
@@ -862,52 +858,131 @@ class juego extends JPanel implements ActionListener {
 
 		}
 	}
-	//level es la columna que le pasamos
-	int[] availableConnect4(int level) {
-		
-		int pos[]=new int[2];
-		Arrays.fill(pos, -1);
-		boolean found=false;
-		int i = tablePaint.length-1;
 
-		while(i>=0&&!found) {
-			
-			if(tablePaint[i][level]==Color.white) {
-				found=true;
-				pos[0]=i;
-				pos[1]=level;
-				
+	// level es la columna que le pasamos
+	int[] availableConnect4(int level) {
+
+		int pos[] = new int[2];
+		Arrays.fill(pos, -1);
+		boolean found = false;
+		int i = tablePaint.length - 1;
+
+		while (i >= 0 && !found) {
+
+			if (tablePaint[i][level] == Color.white) {
+				found = true;
+				pos[0] = i;
+				pos[1] = level;
+
 			}
-			
+
 			i--;
-			
+
 		}
 
-		
 		return pos;
 	}
-	
+
 	public void estrategiaGanadora() {
 		
+		boolean move= false;
 		
+		Color[][]table = tablePaint.clone();
 		
-		
-		
-	}
-	
-	int[] opposite(int i,int j) {
-		
-		int res[]= new int[2];
-		Arrays.fill(res,1);
-		
-		if(i==1||j==1) {
+		if(tablePaint[1][1]==Color.white && fichasIa>0) {
 			
+			botones[4].doClick();
+			move=true;
+		
+			
+		}
+		
+		if (!(move = whoWins(found, table, idIa))) {
+
+			move = whoWins(found, table, colorHumano);
+
+		}
+		
+		
+		
+		
+		if(!move) {
+		int aux[]=nearLastMov();
+		
+		int op[]=opposite(aux[0], aux[1]);
+		
+		botones[conversionPlainToLine(op[0],op[1])].doClick();
+		
+		}
+
+	}
+
+
+	int[] opposite(int i, int j) {
+
+		int res[] = new int[2];
+		Arrays.fill(res, 1);
+
+		if (i == 1 || j == 1) {
+
+			switch (i) {
+			case 1:
+				if (j == 0) {
+
+					res[0] = i;
+					res[1] = 2;
+
+				} else {
+
+					res[0] = i;
+					res[1] = 0;
+
+				}
+
+				break;
+
+			default:
+
+				if (i == 0) {
+
+					res[0] = 2;
+					res[1] = j;
+
+				} else if(i==2){
+
+					res[0] = 0;
+					res[1] = j;
+
+				}
+
+				break;
+			}
+
+		}else {		
+			if(i==j) {
+				
+				switch (i) {
+				case 0:
+					res[0]=2;
+					res[1]=2;
+					break;
+
+				default:
+					res[0]=0;
+					res[1]=0;
+					break;
+				}
+				
+			}else {		
+				res[0]=j;
+				res[1]=i;
+			}
 			
 			
 			
 		}
-		
-		return null;
+
+		return res;
 	}
 
 }
