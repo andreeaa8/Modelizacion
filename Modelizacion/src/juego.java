@@ -26,47 +26,49 @@ class juego extends JPanel implements ActionListener {
 	private Map<Integer, JTextPane> listPane;
 	private Color tablePaint[][];
 	private JButton botones[];
+	ArrayList<Posicion> movimientosQueFaltan;
 	JButton bb;
 	Color AZUL_APAGADO = new Color(192, 192, 130);
 	// JTextPane p[];
-	int lastMov[], levels[];
+	int lastMov[], levels[], winnerMove[];
 
 	Color colorHumano, idIa;// first player is in red, second one in blue
-	int humano =0, ia = 1, fichasIa = 3, fichas1 = 3;
+	int humano = 0, ia = 1, fichasIa = 3, fichas1 = 3;
 	int turn = 0;
 	int num = 0;
 	JFrame endGame;
-	boolean end, beguin, found, cpu;
+	boolean end, beguin, found, cpu, movimientoFinal, flag;
 	int mode;
 
-	public juego(int num,boolean begin,boolean cpu) {
-		//reset();
-		end=false;
-		this.beguin=begin;
-		this.cpu=cpu;
-		this.num=num;
-		this.mode=0;
-		if(begin) {
-			colorHumano=Color.blue;
-			idIa=Color.red;
-			}else {
-			idIa=Color.blue;
-			colorHumano=Color.red;
-			}
-		System.out.println("tablero de "+num);
-		tablePaint= new Color[num][num];
-		botones= new JButton[num*num];
-		//p= new JTextPane[num*num];
-		int x=50,y=30,ancho=70;
-		int aux=x;
-		//setLayout(new dispositionTable(num));
+	public juego(int num, boolean begin, boolean cpu) {
+		// reset();
+		end = false;
+		this.beguin = begin;
+		this.cpu = cpu;
+		this.num = num;
+		this.mode = 0;
+		winnerMove = new int[2];
+		if (begin) {
+			colorHumano = Color.blue;
+			idIa = Color.red;
+		} else {
+			idIa = Color.blue;
+			colorHumano = Color.red;
+		}
+		System.out.println("tablero de " + num);
+		tablePaint = new Color[num][num];
+		botones = new JButton[num * num];
+		// p= new JTextPane[num*num];
+		int x = 50, y = 30, ancho = 70;
+		int aux = x;
+		// setLayout(new dispositionTable(num));
 		setLayout(null);
 
 		/*
 		 * JButton boton1 = new JButton(); /*boton1.setOpaque(false);
 		 * boton1.setContentAreaFilled(false); boton1.setBorderPainted(false); JTextPane
 		 * p = new JTextPane(); p.setBackground(AZUL_APAGADO);
-		 * 
+		 *
 		 * boton1.setBounds(50,30,70,70); p.setBounds(50, 30, 70, 70);
 		 */
 		int res[];
@@ -128,25 +130,24 @@ class juego extends JPanel implements ActionListener {
 							tablePaint[res[0]][res[1]] = Color.blue;
 
 						}
-						
-						
-						if(checkWin(tablePaint)|| draw() ) {
+
+						if (checkWin(tablePaint) || draw()) {
 							reset();
-							end=true;
+							end = true;
 							endGame.setVisible(true);
 							endGame.setEnabled(true);
-							imprimirTablero();
-							
+							imprimirTablero(tablePaint);
+
 							System.out.println("Has ganado");
-							
-						}else {
-							imprimirTablero();
-							
-							if(cpu) {
-							minimax(tablePaint,0,false,turn);	
-							//algorithm(beguin);
+
+						} else {
+							imprimirTablero(tablePaint);
+
+							if (cpu) {
+								minimax(tablePaint, 0, false, turn);
+								// algorithm(beguin);
 							}
-							
+
 						}
 
 					}
@@ -169,19 +170,19 @@ class juego extends JPanel implements ActionListener {
 
 		/*
 		 * for (int i = 0; i < tablePaint.length; i++) {
-		 * 
+		 *
 		 * for (int j = 0; j < tablePaint.length; j++) {
-		 * 
+		 *
 		 * tablePaint[i][j]=Color.white;
-		 * 
+		 *
 		 * }
-		 * 
+		 *
 		 * }
-		 * 
-		 * 
+		 *
+		 *
 		 */
-
-		imprimirTablero();
+		Arrays.fill(winnerMove, -1);
+		imprimirTablero(tablePaint);
 		System.out.println(beguin);
 		System.out.println(this.cpu);
 
@@ -193,12 +194,17 @@ class juego extends JPanel implements ActionListener {
 		this.beguin = begin;
 		this.cpu = cpu;
 		this.num = num;
-		this.mode=1;
+		this.mode = 1;
+		flag = true;
+		winnerMove = new int[2];
+		Arrays.fill(winnerMove, -1);
+		movimientoFinal = false;
+		movimientosQueFaltan = new ArrayList<Posicion>();
 		if (begin) {
 			colorHumano = Color.red;
 			idIa = Color.blue;
 			ia = 0;// jugador 2 es la maquina
-			humano =1;
+			humano = 1;
 		} else {
 			idIa = Color.blue;
 			colorHumano = Color.red;
@@ -216,7 +222,7 @@ class juego extends JPanel implements ActionListener {
 		 * JButton boton1 = new JButton(); /*boton1.setOpaque(false);
 		 * boton1.setContentAreaFilled(false); boton1.setBorderPainted(false); JTextPane
 		 * p = new JTextPane(); p.setBackground(AZUL_APAGADO);
-		 * 
+		 *
 		 * boton1.setBounds(50,30,70,70); p.setBounds(50, 30, 70, 70);
 		 */
 		int res[];
@@ -268,11 +274,11 @@ class juego extends JPanel implements ActionListener {
 					if (panel == Color.WHITE && !end) {
 						// quita fichas
 						// player1 id=1, player2 id=2
-						
+
 						if (turn % 2 == humano && fichas1 > 0) {
-							
-							lastMov=res;
-  							p.setBackground(Color.red);
+
+							lastMov = res;
+							p.setBackground(Color.red);
 							tablePaint[res[0]][res[1]] = Color.red;
 							turn++;
 							fichas1--;
@@ -299,16 +305,15 @@ class juego extends JPanel implements ActionListener {
 					if (panel != Color.white && turn % 2 == ia && panel == idIa) {
 
 						fichasIa++;
-
+						lastMov = res;
 						tablePaint[res[0]][res[1]] = Color.white;
 						p.setBackground(Color.white);
-						
 
 					}
 					if (panel != Color.white && turn % 2 == humano && panel == colorHumano) {
 
 						fichas1++;
-
+						lastMov = res;
 						tablePaint[res[0]][res[1]] = Color.white;
 						p.setBackground(Color.white);
 
@@ -319,32 +324,28 @@ class juego extends JPanel implements ActionListener {
 						end = true;
 						endGame.setVisible(true);
 						endGame.setEnabled(true);
-						imprimirTablero();
+						imprimirTablero(tablePaint);
 
 						System.out.println("Has ganado");
 
 					} else {
-						imprimirTablero();
+						imprimirTablero(tablePaint);
 
-						
-						  if (cpu && turn % 2 == ia) {
-						  
-						  //algorithm(beguin);
+						if (cpu && turn % 2 == ia && flag) {
+
+							// algorithm(beguin);
 							estrategiaGanadora();
-						  
-						  }
-						 
-						  
+
+						}
 
 					}
 
 				}
 
-					});
+			});
 
 			add(botones[i]);
 			if (beguin && i == 4 && cpu) {
-
 				p.setBackground(idIa);
 				tablePaint[1][1] = idIa;
 				turn++;
@@ -357,24 +358,25 @@ class juego extends JPanel implements ActionListener {
 
 		/*
 		 * for (int i = 0; i < tablePaint.length; i++) {
-		 * 
+		 *
 		 * for (int j = 0; j < tablePaint.length; j++) {
-		 * 
+		 *
 		 * tablePaint[i][j]=Color.white;
-		 * 
+		 *
 		 * }
-		 * 
+		 *
 		 * }
-		 * 
-		 * 
+		 *
+		 *
 		 */
 
-		imprimirTablero();
+		imprimirTablero(tablePaint);
 		System.out.println(beguin);
 		System.out.println(this.cpu);
 
 	}
-	//Conecta4
+
+	// Conecta4
 	public juego(int num, boolean begin, boolean cpu, char ch) {
 		// reset();
 		end = false;
@@ -404,7 +406,7 @@ class juego extends JPanel implements ActionListener {
 		 * JButton boton1 = new JButton(); /*boton1.setOpaque(false);
 		 * boton1.setContentAreaFilled(false); boton1.setBorderPainted(false); JTextPane
 		 * p = new JTextPane(); p.setBackground(AZUL_APAGADO);
-		 * 
+		 *
 		 * boton1.setBounds(50,30,70,70); p.setBounds(50, 30, 70, 70);
 		 */
 
@@ -486,12 +488,12 @@ class juego extends JPanel implements ActionListener {
 								end = true;
 								endGame.setVisible(true);
 								endGame.setEnabled(true);
-								imprimirTablero();
+								imprimirTablero(tablePaint);
 
 								System.out.println("Has ganado");
 
 							} else {
-								imprimirTablero();
+								imprimirTablero(tablePaint);
 
 								if (cpu) {
 
@@ -525,19 +527,19 @@ class juego extends JPanel implements ActionListener {
 
 		/*
 		 * for (int i = 0; i < tablePaint.length; i++) {
-		 * 
+		 *
 		 * for (int j = 0; j < tablePaint.length; j++) {
-		 * 
+		 *
 		 * tablePaint[i][j]=Color.white;
-		 * 
+		 *
 		 * }
-		 * 
+		 *
 		 * }
-		 * 
-		 * 
+		 *
+		 *
 		 */
 
-		imprimirTablero();
+		imprimirTablero(tablePaint);
 		System.out.println(beguin);
 		System.out.println(this.cpu);
 
@@ -563,25 +565,25 @@ class juego extends JPanel implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
 		/*
-		 * 
+		 *
 		 * Set<Entry<Integer,JButton>> l =list.entrySet();
 		 * Iterator<Entry<Integer,JButton>> it = l.iterator();
-		 * 
+		 *
 		 * boolean found= false; int i=0; while(it.hasNext() && !found){
-		 * 
+		 *
 		 * Entry<Integer,JButton> aux = it.next();
-		 * 
+		 *
 		 * JButton aux1 = (JButton) e.getSource();
-		 * 
+		 *
 		 * if(aux1.equals(aux.getValue())) {
-		 * 
-		 * 
+		 *
+		 *
 		 * found=true;
-		 * 
+		 *
 		 * listPainted.put(aux.getKey(), true);
-		 * 
+		 *
 		 * aux1.setBackground(Color.RED); list.put(aux.getKey(), aux1); }
-		 * 
+		 *
 		 * }
 		 */
 
@@ -591,11 +593,11 @@ class juego extends JPanel implements ActionListener {
 
 		/*
 		 * if(turn%2==0) {
-		 * 
+		 *
 		 * prueba.setBackground(Color.blue); turn++; }else {
-		 * 
+		 *
 		 * prueba.setBackground(Color.red); turn++;
-		 * 
+		 *
 		 * }
 		 */
 
@@ -657,21 +659,21 @@ class juego extends JPanel implements ActionListener {
 
 		});
 		endGame.add(reiniciar, BorderLayout.SOUTH);
-		endGame.add(new gameInfo(turn % 2==ia,checkWin(tablePaint)), BorderLayout.CENTER);
+		endGame.add(new gameInfo(turn % 2 == ia, checkWin(tablePaint)), BorderLayout.CENTER);
 		endGame.setEnabled(false);
 
 	}
 
 	void algorithm(boolean beguin) {
-		int res[]=new int[2],i=0,j=0;
-		boolean found=false;
-		
+		int res[] = new int[2], i = 0, j = 0;
+		boolean found = false;
+
 		Color[][] table = tablePaint;
-		
-		if(table[1][1]==Color.white){
-			
-			res=conversionLineTPlain(4);
-			this.beguin=false;
+
+		if (table[1][1] == Color.white) {
+
+			res = conversionLineTPlain(4);
+			this.beguin = false;
 			botones[4].doClick();
 
 		}
@@ -687,7 +689,7 @@ class juego extends JPanel implements ActionListener {
 
 			if (!found) {
 
-				imprimirTablero();
+				imprimirTablero(tablePaint);
 
 				res = nearLastMov();
 
@@ -752,7 +754,7 @@ class juego extends JPanel implements ActionListener {
 				j++;
 
 			}
-			j = 0;
+			j = lastMov[1];
 
 			i++;
 
@@ -812,47 +814,48 @@ class juego extends JPanel implements ActionListener {
 
 	}
 
+	public boolean whoWins(boolean found, Color table[][], Color idPlayer) {
+		int i = 0, j = 0;
 
-	
-	public boolean whoWins(boolean found,Color table[][],Color idPlayer) {
-		int i=0,j=0;
-		
-		while(i<table.length && !found) {
-			
-			while(j<table[i].length && !found) {
-				
-				if(table[i][j]==Color.white) {
-				table[i][j]=idPlayer;
-				
-				if(checkWin(table)) {
-					found=true;
-					
-					
-					System.out.println("Te iba a ganar");
-					System.out.println(i+":"+j);
-					botones[conversionPlainToLine(i, j)].doClick();
-					
-					//table[i][j]=idPlayer;
-				}else {
-					
-					table[i][j]=Color.white;
+		while (i < table.length && !found) {
+
+			while (j < table[i].length && !found) {
+
+				if (table[i][j] == Color.white) {
+					table[i][j] = idPlayer;
+
+					if (checkWin(table)) {
+						found = true;
+						if (fichasIa > 0) {
+							System.out.println("Te iba a ganar");
+							System.out.println(i + ":" + j);
+							botones[conversionPlainToLine(i, j)].doClick();
+						} else {
+
+							winnerMove[0] = i;
+							winnerMove[1] = j;
+						}
+
+						// table[i][j]=idPlayer;
+					} else {
+
+						table[i][j] = Color.white;
+					}
+
 				}
-
-				
-			}
 				j++;
-			
-		}
+
+			}
 			j = 0;
 
 			i++;
 
-	}
+		}
 		return found;
-		
+
 	}
 
-	public void imprimirTablero() {
+	public void imprimirTablero(Color[][] tablePaint) {
 
 		for (int i = 0; i < tablePaint.length; i++) {
 
@@ -891,45 +894,120 @@ class juego extends JPanel implements ActionListener {
 	}
 
 	public void estrategiaGanadora() {
-		
-		boolean move= false;
-		
-		Color[][]table= new Color[num][num];
-		
+
+		boolean move = false;
+		int[] corner = { 0, 0 }, corner1 = { 2, 0 }, corner2 = { 0, 2 }, corner3 = { 2, 2 };
+
+		Color[][] table = new Color[num][num];
+
 		for (int i = 0; i < table.length; i++) {
-			
-			table[i]=Arrays.copyOf(tablePaint[i], num);
-			
+
+			table[i] = Arrays.copyOf(tablePaint[i], num);
+
 		}
-		
-		if(tablePaint[1][1]==Color.white && fichasIa>0) {
-			
+
+		if (tablePaint[1][1] == Color.white && fichasIa > 0) {
+
 			botones[4].doClick();
-			move=true;
-		
+			move = true;
+
+		}
+
+		if (!movimientoFinal) {
+
+			if (!(move = whoWins(found, table, idIa))) {
+
+				move = whoWins(found, table, colorHumano);
+
+				if (move) {
+
+					movimientoFinal = true;
+				}
+
+			}
+
+		}
+
+		if (!move && !movimientoFinal) {
+			int aux[] = nearLastMov();
 			
-		}
-		
-		if (!(move = whoWins(found, table, idIa))) {
+			if(aux[1]==1 && aux[0]==0 && lastMov[0]==1 && lastMov[1]==2) {
+				
+				aux[1]+=1;
+			}
+			
+			if(aux[1]==0 && aux[0]==1 && lastMov[0]==2 && lastMov[1]==1) {
+				
+				aux[0]+=1;
+			}
 
-			move = whoWins(found, table, colorHumano);
+			int op[] = opposite(aux[0], aux[1]);
+
+			botones[conversionPlainToLine(op[0], op[1])].doClick();
 
 		}
-		
-		
-		
-		
-		if(!move) {
-		int aux[]=nearLastMov();
-		
-		int op[]=opposite(aux[0], aux[1]);
-		
-		botones[conversionPlainToLine(op[0],op[1])].doClick();
-		
+
+		if (movimientoFinal && turn % 2 == ia) {
+			
+			whoWins(found, table, idIa);
+
+			if (winnerMove[0] != -1) {
+
+				if (movimientosQueFaltan.isEmpty()) {
+					
+					for (int i = 0; i < table.length; i++) {
+
+						table[i] = Arrays.copyOf(tablePaint[i], num);
+
+					}
+					
+					//si hay dos soluciones puede que una de ellas nos la han bloqueado
+					//tenemos que ver cual de las dos no esta bloqueada y dar a la que podemos llegar  
+
+
+					int [] posibleStep = availableWinnerOneStep(table);
+					
+					if(posibleStep[0]!=-1) {
+						
+						
+						flag=false;
+						botones[conversionPlainToLine(posibleStep[0],posibleStep[1])].doClick();
+						botones[conversionPlainToLine(winnerMove[0],winnerMove[1])].doClick();
+						flag=true;
+						
+					}else {
+
+					movimientosQueFaltan = getProperLineCol(tablePaint, lastMov[1]);
+
+					if (movimientosQueFaltan.isEmpty()) {
+
+						movimientosQueFaltan = getProperLineFila(tablePaint, lastMov[0]);
+
+					}
+
+				
+
+				flag = false;
+
+				int auxi = movimientosQueFaltan.get(movimientosQueFaltan.size() - 1).getI(),
+						auxj = movimientosQueFaltan.get(movimientosQueFaltan.size() - 1).getJ();
+
+				botones[conversionPlainToLine(lastMov[0], lastMov[1])].doClick();
+				botones[conversionPlainToLine(auxi, auxj)].doClick();
+
+				movimientosQueFaltan.remove(movimientosQueFaltan.size() - 1);
+
+				flag = true;
+
+					}
+				}
+				
+			}
 		}
+
+		
 
 	}
-
 
 	int[] opposite(int i, int j) {
 
@@ -961,7 +1039,7 @@ class juego extends JPanel implements ActionListener {
 					res[0] = 2;
 					res[1] = j;
 
-				} else if(i==2){
+				} else if (i == 2) {
 
 					res[0] = 0;
 					res[1] = j;
@@ -971,129 +1049,270 @@ class juego extends JPanel implements ActionListener {
 				break;
 			}
 
-		}else {		
-			if(i==j) {
-				
+		} else {
+			if (i == j) {
+
 				switch (i) {
 				case 0:
-					res[0]=2;
-					res[1]=2;
+					res[0] = 2;
+					res[1] = 2;
 					break;
 
 				default:
-					res[0]=0;
-					res[1]=0;
+					res[0] = 0;
+					res[1] = 0;
 					break;
 				}
-				
-			}else {		
-				res[0]=j;
-				res[1]=i;
+
+			} else {
+				res[0] = j;
+				res[1] = i;
 			}
-			
-			
-			
+
 		}
 
 		return res;
 	}
-	
-	private static int getRandomNumberRange( int min, int max) {		
-		Random r= new Random();
+
+	// hay que asegurarse de que la llamada se hace bien
+	private void getProperLine(Color[][] table) {
+
+		movimientosQueFaltan = new ArrayList<Posicion>();
+
+		// fila sup
+		movimientosQueFaltan = getProperLineFila(table, 0);
+		// fila inf
+
+		if (movimientosQueFaltan.isEmpty()) {
+			movimientosQueFaltan = getProperLineFila(table, 2);
+		}
+		// col sup
+		if (movimientosQueFaltan.isEmpty()) {
+			movimientosQueFaltan = getProperLineCol(table, 0);
+		}
+		// col inf
+		if (movimientosQueFaltan.isEmpty()) {
+			movimientosQueFaltan = getProperLineCol(table, 2);
+		}
+
+	}
+
+	private ArrayList<Posicion> getProperLineFila(Color[][] table, int fil) {
+
+		ArrayList<Posicion> res = new ArrayList<Posicion>();
+
+		int i = 0;
+
+		while (i < table[fil].length - 1) {
+
+			if (table[fil][i] == table[fil][i + 1] && table[fil][i + 1] == Color.white) {
+
+				res.add(new Posicion(fil, i));
+				res.add(new Posicion(fil, i + 1));
+
+			}
+
+			i++;
+
+		}
+
+		return res;
+	}
+
+	private ArrayList<Posicion> getProperLineCol(Color[][] table, int col) {
+
+		ArrayList<Posicion> res = new ArrayList<Posicion>();
+
+		int i = 0;
+
+		while (i < table.length - 1) {
+
+			if (table[i][col] == table[i + 1][col] && table[i + 1][col] == Color.white) {
+
+				res.add(new Posicion(i, col));
+				res.add(new Posicion(i + 1, col));
+
+			}
+
+			i++;
+
+		}
+
+		return res;
+
+	}
+
+	private int[] availableWinnerOneStep(Color[][] tableOr) {
+		// desde la posicion de winner hay qie mover fichas y ver que ganamos
+		boolean found = false;
+		int i = winnerMove[0] + 1, j = winnerMove[1] + 1;
+		int[] res = new int[2];
+		Arrays.fill(res, -1);
+
+		Color[][] table = tableAux();
+
+		if (table[i - 1][j] == idIa && table[i -1][j] != Color.black) {
+
+			tableOr[i - 2][j-1] = Color.white;
+			tableOr[winnerMove[0]][winnerMove[1]] = idIa;
+			imprimirTablero(tableOr);
+			if (checkWin(tableOr)) {
+
+				found = true;
+				res[0] = i - 2;
+				res[1] = j - 1;
+			}
+			
+			tableOr[i - 2][j-1] = idIa;
+			tableOr[winnerMove[0]][winnerMove[1]] = Color.white;
+			imprimirTablero(tableOr);
+		}
+
+		if (!found && table[i + 1][j] == idIa && table[i + 1][j] != Color.black ) {
+
+			tableOr[i][j-1] = Color.white;
+			imprimirTablero(tableOr);
+			tableOr[winnerMove[0]][winnerMove[1]] = idIa;
+			imprimirTablero(tableOr);
+			if (checkWin(tableOr)) {
+
+				found = true;
+				res[0] = i ;
+				res[1] = j - 1;
+			}
+			
+			tableOr[i][j-1] = idIa;
+			tableOr[winnerMove[0]][winnerMove[1]] = Color.white;
+
+		}
+
+		if (!found && table[i][j + 1] == idIa && table[i][j+1] != Color.black) {
+
+			tableOr[i-1][j] = Color.white;
+			tableOr[winnerMove[0]][winnerMove[1]] = idIa;
+			imprimirTablero(tableOr);
+			if (checkWin(tableOr)) {
+
+				found = true;
+				res[0] = i - 1;
+				res[1] = j ;
+			}
+			
+			tableOr[i-1][j-1] = idIa;
+			tableOr[winnerMove[0]][winnerMove[1]] = Color.white;
+		}
+
+		if (!found && table[i][j - 1] == idIa && table[i][j-1] != Color.black) {
+
+			tableOr[i-1][j-2] = Color.white;
+			tableOr[winnerMove[0]][winnerMove[1]] = idIa;
+			imprimirTablero(tableOr);
+			if (checkWin(tableOr)) {
+
+				found = true;
+				res[0] = i -1;
+				res[1] = j -2;
+			}
+			tableOr[i-1][j-2] = idIa;
+			tableOr[winnerMove[0]][winnerMove[1]] = Color.white;
+		}
+
+		return res;
+	}
+
+
+
+	private static int getRandomNumberRange(int min, int max) {
+		Random r = new Random();
 		return r.nextInt((max - min) + 1) + min;
 	}
-	
-	
-	public void nextTurn(){
-		ArrayList<Posicion> let= new ArrayList<Posicion>();
-		for(int i=0;i<3;i++) {
-			for( int j=0; j<3; j++) {
-				if(tablePaint[i][j]==Color.white) {
-					let.add(new Posicion(i,j));
+
+	public void nextTurn() {
+		ArrayList<Posicion> let = new ArrayList<Posicion>();
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 3; j++) {
+				if (tablePaint[i][j] == Color.white) {
+					let.add(new Posicion(i, j));
 				}
 			}
 		}
 		Posicion move;
-		int randomInt= getRandomNumberRange(0,let.size()-1);
-		move=let.get(randomInt);
-		tablePaint[move.getI()][move.getJ()]= idIa;
-		turn+=1;	
+		int randomInt = getRandomNumberRange(0, let.size() - 1);
+		move = let.get(randomInt);
+		tablePaint[move.getI()][move.getJ()] = idIa;
+		turn += 1;
 	}
-	
-	public void bestMove(){
-		Color [][] colores=tablePaint.clone();
-		ArrayList<Posicion> let= new ArrayList<Posicion>();
-		int bestScore=(int)Double.NEGATIVE_INFINITY ;
+
+	public void bestMove() {
+		Color[][] colores = tablePaint.clone();
+		ArrayList<Posicion> let = new ArrayList<Posicion>();
+		int bestScore = (int) Double.NEGATIVE_INFINITY;
 		Posicion move;
-		for(int i=0;i<3;i++) {
-			for( int j=0; j<3; j++) {
-				if(colores[i][j]==Color.white) {
-					colores[i][j]= idIa;
-					int score=minimax(colores,0,false, turn);
-					colores[i][j]=Color.white;
-					if(score > bestScore) {
-						bestScore= score;
-						move=new Posicion(i,j);
-						
-						
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 3; j++) {
+				if (colores[i][j] == Color.white) {
+					colores[i][j] = idIa;
+					int score = minimax(colores, 0, false, turn);
+					colores[i][j] = Color.white;
+					if (score > bestScore) {
+						bestScore = score;
+						move = new Posicion(i, j);
+
 					}
 				}
 			}
 		}
-		
-		int randomInt= getRandomNumberRange(0,let.size()-1);
-		move=let.get(randomInt);
-		colores[move.getI()][move.getJ()]= idIa;
-		turn+=1;	
+
+		int randomInt = getRandomNumberRange(0, let.size() - 1);
+		move = let.get(randomInt);
+		colores[move.getI()][move.getJ()] = idIa;
+		turn += 1;
 	}
-	
-	
-	
-	public int minimax (Color[][] tablero, int depth, boolean isMaximizing, int turno) {
-		Color [][] colores=tablePaint.clone();
-		boolean result= checkWin(colores); //si alguien ha ganado
+
+	public int minimax(Color[][] tablero, int depth, boolean isMaximizing, int turno) {
+		Color[][] colores = tablePaint.clone();
+		boolean result = checkWin(colores); // si alguien ha ganado
 		int score;
-		if(result) { // si es que si (true)
-			if(turno%2==ia) {
-				score=1;
-			}
-			else {
-				score=-1;
+		if (result) { // si es que si (true)
+			if (turno % 2 == ia) {
+				score = 1;
+			} else {
+				score = -1;
 			}
 			return score;
-			
+
 		}
-			
-		if(isMaximizing) {
-			int bestScore=(int)Double.NEGATIVE_INFINITY ;
-			for(int i=0;i<3;i++) {
-				for( int j=0; j<3; j++) {
-					if(colores[i][j]==Color.white) {
-						colores[i][j]= idIa;
-						score= minimax(colores, depth+1, false, turno);
-						colores[i][j]= Color.white;
-						bestScore= Math.max(score, bestScore);
+
+		if (isMaximizing) {
+			int bestScore = (int) Double.NEGATIVE_INFINITY;
+			for (int i = 0; i < 3; i++) {
+				for (int j = 0; j < 3; j++) {
+					if (colores[i][j] == Color.white) {
+						colores[i][j] = idIa;
+						score = minimax(colores, depth + 1, false, turno);
+						colores[i][j] = Color.white;
+						bestScore = Math.max(score, bestScore);
 					}
 				}
-				
+
 			}
 			return bestScore;
 		} else {
-			int bestScore=(int)Double.POSITIVE_INFINITY ;
-			for(int i=0;i<3;i++) {
-				for( int j=0; j<3; j++) {
-					if(colores[i][j]==Color.white) {
-						colores[i][j]= colorHumano;
-						score= minimax(colores, depth+1, true, turno);
-						colores[i][j]= Color.white;
-						bestScore= Math.min(score, bestScore);
+			int bestScore = (int) Double.POSITIVE_INFINITY;
+			for (int i = 0; i < 3; i++) {
+				for (int j = 0; j < 3; j++) {
+					if (colores[i][j] == Color.white) {
+						colores[i][j] = colorHumano;
+						score = minimax(colores, depth + 1, true, turno);
+						colores[i][j] = Color.white;
+						bestScore = Math.min(score, bestScore);
 					}
 				}
-				
+
 			}
 			return bestScore;
-			
+
 		}
-	
+
 	}
 }
