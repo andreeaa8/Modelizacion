@@ -19,6 +19,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
+import javax.swing.text.TabableView;
 
 class juego extends JPanel implements ActionListener {
 
@@ -485,6 +486,7 @@ class juego extends JPanel implements ActionListener {
 							lastMov = res;
 							if (checkWin(tablePaint) || draw()) {
 								reset();
+								movimientosQueFaltan = new ArrayList<Posicion>();
 								end = true;
 								endGame.setVisible(true);
 								endGame.setEnabled(true);
@@ -897,6 +899,11 @@ class juego extends JPanel implements ActionListener {
 
 		boolean move = false;
 		int[] corner = { 0, 0 }, corner1 = { 2, 0 }, corner2 = { 0, 2 }, corner3 = { 2, 2 };
+		ArrayList<int[]> corners = new ArrayList<int[]>();
+		corners.add(corner);
+		corners.add(corner1);
+		corners.add(corner2);
+		corners.add(corner3);
 
 		Color[][] table = new Color[num][num];
 
@@ -930,15 +937,15 @@ class juego extends JPanel implements ActionListener {
 
 		if (!move && !movimientoFinal) {
 			int aux[] = nearLastMov();
-			
-			if(aux[1]==1 && aux[0]==0 && lastMov[0]==1 && lastMov[1]==2) {
-				
-				aux[1]+=1;
+
+			if (aux[1] == 1 && aux[0] == 0 && lastMov[0] == 1 && lastMov[1] == 2) {
+
+				aux[1] += 1;
 			}
-			
-			if(aux[1]==0 && aux[0]==1 && lastMov[0]==2 && lastMov[1]==1) {
-				
-				aux[0]+=1;
+
+			if (aux[1] == 0 && aux[0] == 1 && lastMov[0] == 2 && lastMov[1] == 1) {
+
+				aux[0] += 1;
 			}
 
 			int op[] = opposite(aux[0], aux[1]);
@@ -947,66 +954,167 @@ class juego extends JPanel implements ActionListener {
 
 		}
 
-		if (movimientoFinal && turn % 2 == ia) {
-			
+		if (turn % 2 == ia && fichasIa == 0) {
+
 			whoWins(found, table, idIa);
 
 			if (winnerMove[0] != -1) {
 
-				if (movimientosQueFaltan.isEmpty()) {
-					
-					for (int i = 0; i < table.length; i++) {
+				// if (movimientosQueFaltan.isEmpty()) {
 
-						table[i] = Arrays.copyOf(tablePaint[i], num);
+				for (int i = 0; i < table.length; i++) {
 
-					}
-					
-					//si hay dos soluciones puede que una de ellas nos la han bloqueado
-					//tenemos que ver cual de las dos no esta bloqueada y dar a la que podemos llegar  
+					table[i] = Arrays.copyOf(tablePaint[i], num);
 
-
-					int [] posibleStep = availableWinnerOneStep(table);
-					
-					if(posibleStep[0]!=-1) {
-						
-						
-						flag=false;
-						botones[conversionPlainToLine(posibleStep[0],posibleStep[1])].doClick();
-						botones[conversionPlainToLine(winnerMove[0],winnerMove[1])].doClick();
-						flag=true;
-						
-					}else {
-
-					movimientosQueFaltan = getProperLineCol(tablePaint, lastMov[1]);
-
-					if (movimientosQueFaltan.isEmpty()) {
-
-						movimientosQueFaltan = getProperLineFila(tablePaint, lastMov[0]);
-
-					}
-
-				
-
-				flag = false;
-
-				int auxi = movimientosQueFaltan.get(movimientosQueFaltan.size() - 1).getI(),
-						auxj = movimientosQueFaltan.get(movimientosQueFaltan.size() - 1).getJ();
-
-				botones[conversionPlainToLine(lastMov[0], lastMov[1])].doClick();
-				botones[conversionPlainToLine(auxi, auxj)].doClick();
-
-				movimientosQueFaltan.remove(movimientosQueFaltan.size() - 1);
-
-				flag = true;
-
-					}
 				}
-				
+
+				// si hay dos soluciones puede que una de ellas nos la han bloqueado
+				// tenemos que ver cual de las dos no esta bloqueada y dar a la que podemos
+				// llegar
+
+				int[] posibleStep = availableWinnerOneStep(table);
+
+				if (posibleStep[0] != -1) {
+
+					flag = false;
+					botones[conversionPlainToLine(posibleStep[0], posibleStep[1])].doClick();
+					botones[conversionPlainToLine(winnerMove[0], winnerMove[1])].doClick();
+					flag = true;
+
+				} else {
+					// caso 2
+					flag = false;
+					ArrayList<Posicion> cornersAux = opositesCorners(winnerMove);
+
+					if (tablePaint[cornersAux.get(0).getI()][cornersAux.get(0).getJ()] == idIa) {
+
+						if ((winnerMove[1] - cornersAux.get(0).getJ()) == 0) {
+
+							movimientosQueFaltan = getProperLineCol(tablePaint, winnerMove[1]);
+							botones[conversionPlainToLine(cornersAux.get(0).getI(),cornersAux.get(0).getJ())].doClick();
+
+						} else {
+
+							movimientosQueFaltan = getProperLineFila(tablePaint, winnerMove[0]);
+							botones[conversionPlainToLine(cornersAux.get(0).getI(),cornersAux.get(0).getJ())].doClick();
+						}
+
+					} else {
+
+						if ( (winnerMove[1] - cornersAux.get(1).getJ()) == 0) {
+
+							movimientosQueFaltan = getProperLineCol(tablePaint, winnerMove[1]);
+							botones[conversionPlainToLine(cornersAux.get(1).getI(),cornersAux.get(1).getJ())].doClick();
+
+						} else {
+
+							movimientosQueFaltan = getProperLineFila(tablePaint, winnerMove[0]);
+							botones[conversionPlainToLine(cornersAux.get(1).getI(),cornersAux.get(1).getJ())].doClick();
+						}
+
+					}
+
+					
+
+					int auxi = movimientosQueFaltan.get(movimientosQueFaltan.size() - 1).getI(),
+							auxj = movimientosQueFaltan.get(movimientosQueFaltan.size() - 1).getJ();
+
+					
+					botones[conversionPlainToLine(auxi, auxj)].doClick();
+
+					movimientosQueFaltan.remove(movimientosQueFaltan.size() - 1);
+
+					flag = true;
+
+				}
+				// }
+
+			} else {
+
+				// caso1
+				// no hay movimiento ganador estamos en el caso 1 hay que hacer dos mov
+				// 1º localiamos esquina
+				boolean found = false;
+				int i = 0;
+				while (i < corners.size() && !found) {
+
+					if (tablePaint[corners.get(i)[0]][corners.get(i)[1]] == idIa) {
+
+						found = true;
+						// 2º con la funcion miramos la columna y fila a ver si hay algun movimiento
+						// permitido (2 mov)
+
+						getProperLine(tablePaint);
+						flag = false;
+						Color[][] tableAux = tableAux();
+						int iAux = movimientosQueFaltan.get(movimientosQueFaltan.size() - 1).getI() + 1;
+						int jAux = movimientosQueFaltan.get(movimientosQueFaltan.size() - 1).getJ() + 1;
+
+						found = false;
+
+						if (tableAux[iAux - 1][jAux] == idIa && tableAux[iAux - 1][jAux] != Color.black) {
+
+							found = true;
+							botones[conversionPlainToLine(iAux - 2, jAux - 1)].doClick();
+
+						}
+
+						if (!found && tableAux[iAux + 1][jAux] == idIa && tableAux[iAux + 1][jAux] != Color.black) {
+
+							found = true;
+							botones[conversionPlainToLine(iAux, jAux - 1)].doClick();
+
+						}
+
+						if (!found && tableAux[iAux][jAux + 1] == idIa && tableAux[iAux][jAux + 1] != Color.black) {
+
+							found = true;
+							botones[conversionPlainToLine(iAux - 1, jAux)].doClick();
+
+						}
+
+						if (!found && tableAux[iAux][jAux - 1] == idIa && tableAux[iAux][jAux - 1] != Color.black) {
+
+							found = true;
+							botones[conversionPlainToLine(iAux - 1, jAux - 2)].doClick();
+
+						}
+
+						imprimirTablero(tablePaint);
+
+						botones[conversionPlainToLine(iAux - 1, jAux - 1)].doClick();
+						imprimirTablero(tablePaint);
+						movimientosQueFaltan.remove(movimientosQueFaltan.size() - 1);
+						flag = true;
+
+					}
+
+					i++;
+
+				}
+
 			}
 		}
 
-		
+	}
 
+	ArrayList<Posicion> opositesCorners(int[] corner) {
+
+		ArrayList<Posicion> res = new ArrayList<Posicion>();
+
+		if (corner[0] == corner[1]) {
+			// primero fila y luego columna
+			res.add(new Posicion(2, 0));
+			res.add(new Posicion(0, 2));
+
+		} else {
+			// primero fila y luego columna
+			res.add(new Posicion(0, 0));
+			res.add(new Posicion(2, 2));
+
+		}
+
+		return res;
 	}
 
 	int[] opposite(int i, int j) {
@@ -1151,9 +1259,9 @@ class juego extends JPanel implements ActionListener {
 
 		Color[][] table = tableAux();
 
-		if (table[i - 1][j] == idIa && table[i -1][j] != Color.black) {
+		if (table[i - 1][j] == idIa && table[i - 1][j] != Color.black) {
 
-			tableOr[i - 2][j-1] = Color.white;
+			tableOr[i - 2][j - 1] = Color.white;
 			tableOr[winnerMove[0]][winnerMove[1]] = idIa;
 			imprimirTablero(tableOr);
 			if (checkWin(tableOr)) {
@@ -1162,65 +1270,63 @@ class juego extends JPanel implements ActionListener {
 				res[0] = i - 2;
 				res[1] = j - 1;
 			}
-			
-			tableOr[i - 2][j-1] = idIa;
+
+			tableOr[i - 2][j - 1] = idIa;
 			tableOr[winnerMove[0]][winnerMove[1]] = Color.white;
 			imprimirTablero(tableOr);
 		}
 
-		if (!found && table[i + 1][j] == idIa && table[i + 1][j] != Color.black ) {
+		if (!found && table[i + 1][j] == idIa && table[i + 1][j] != Color.black) {
 
-			tableOr[i][j-1] = Color.white;
+			tableOr[i][j - 1] = Color.white;
 			imprimirTablero(tableOr);
 			tableOr[winnerMove[0]][winnerMove[1]] = idIa;
 			imprimirTablero(tableOr);
 			if (checkWin(tableOr)) {
 
 				found = true;
-				res[0] = i ;
+				res[0] = i;
 				res[1] = j - 1;
 			}
-			
-			tableOr[i][j-1] = idIa;
+
+			tableOr[i][j - 1] = idIa;
 			tableOr[winnerMove[0]][winnerMove[1]] = Color.white;
 
 		}
 
-		if (!found && table[i][j + 1] == idIa && table[i][j+1] != Color.black) {
+		if (!found && table[i][j + 1] == idIa && table[i][j + 1] != Color.black) {
 
-			tableOr[i-1][j] = Color.white;
+			tableOr[i - 1][j] = Color.white;
 			tableOr[winnerMove[0]][winnerMove[1]] = idIa;
 			imprimirTablero(tableOr);
 			if (checkWin(tableOr)) {
 
 				found = true;
 				res[0] = i - 1;
-				res[1] = j ;
+				res[1] = j;
 			}
-			
-			tableOr[i-1][j-1] = idIa;
+
+			tableOr[i - 1][j - 1] = idIa;
 			tableOr[winnerMove[0]][winnerMove[1]] = Color.white;
 		}
 
-		if (!found && table[i][j - 1] == idIa && table[i][j-1] != Color.black) {
+		if (!found && table[i][j - 1] == idIa && table[i][j - 1] != Color.black) {
 
-			tableOr[i-1][j-2] = Color.white;
+			tableOr[i - 1][j - 2] = Color.white;
 			tableOr[winnerMove[0]][winnerMove[1]] = idIa;
 			imprimirTablero(tableOr);
 			if (checkWin(tableOr)) {
 
 				found = true;
-				res[0] = i -1;
-				res[1] = j -2;
+				res[0] = i - 1;
+				res[1] = j - 2;
 			}
-			tableOr[i-1][j-2] = idIa;
+			tableOr[i - 1][j - 2] = idIa;
 			tableOr[winnerMove[0]][winnerMove[1]] = Color.white;
 		}
 
 		return res;
 	}
-
-
 
 	private static int getRandomNumberRange(int min, int max) {
 		Random r = new Random();
