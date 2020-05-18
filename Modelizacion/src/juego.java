@@ -9,6 +9,7 @@ import java.awt.event.ActionListener;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Random;
@@ -20,11 +21,13 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
 import javax.swing.text.TabableView;
+import javax.swing.text.html.HTMLDocument.HTMLReader.IsindexAction;
 
 class juego extends JPanel implements ActionListener {
 
 	private Map<Integer, JButton> list;
 	private Map<Integer, JTextPane> listPane;
+	private Map<Integer,Integer> correspondencia;
 	private Color tablePaint[][];
 	private JButton botones[];
 	ArrayList<Posicion> movimientosQueFaltan;
@@ -145,8 +148,8 @@ class juego extends JPanel implements ActionListener {
 							imprimirTablero(tablePaint);
 
 							if (cpu) {
-								minimax(tablePaint, 0, false, turn);
-								// algorithm(beguin);
+								//minimax(tablePaint, 0, false, turn);
+								algorithm(beguin);
 							}
 
 						}
@@ -200,6 +203,7 @@ class juego extends JPanel implements ActionListener {
 		winnerMove = new int[2];
 		Arrays.fill(winnerMove, -1);
 		movimientoFinal = false;
+		correspondencia=  new HashMap<Integer, Integer>();
 		movimientosQueFaltan = new ArrayList<Posicion>();
 		if (begin) {
 			colorHumano = Color.red;
@@ -693,7 +697,7 @@ class juego extends JPanel implements ActionListener {
 
 				imprimirTablero(tablePaint);
 
-				res = nearLastMov();
+				res = nearLastMov(tablePaint);
 
 				botones[conversionPlainToLine(res[0], res[1])].doClick();
 				;
@@ -736,11 +740,13 @@ class juego extends JPanel implements ActionListener {
 		return x * 7 + y;
 	}
 
-	int[] nearLastMov() {
+	int[] nearLastMov(Color[][] table) {
 
-		int res[] = new int[2], i = lastMov[0], j = lastMov[1];
+		int res[]= new int[2]; 
+		Arrays.fill(res, -1);
+		int i = lastMov[0], j = lastMov[1];
 		boolean found = false;
-		Color[][] aux = tableAux();
+		Color[][] aux = tableAux(table);
 
 		while (i < aux.length && i < lastMov[0] + 3 && !found) {
 
@@ -766,7 +772,7 @@ class juego extends JPanel implements ActionListener {
 
 	}
 
-	Color[][] tableAux() {
+	Color[][] tableAux(Color[][] tablePaint) {
 
 		Color[][] res = new Color[2 + num][2 + num];
 		int j = 0;
@@ -936,7 +942,7 @@ class juego extends JPanel implements ActionListener {
 		}
 
 		if (!move && !movimientoFinal) {
-			int aux[] = nearLastMov();
+			int aux[] = nearLastMov(tablePaint);
 
 			if (aux[1] == 1 && aux[0] == 0 && lastMov[0] == 1 && lastMov[1] == 2) {
 
@@ -957,7 +963,27 @@ class juego extends JPanel implements ActionListener {
 		if (turn % 2 == ia && fichasIa == 0) {
 
 			whoWins(found, table, idIa);
-
+			
+			int[] posibleSolution=Arrays.copyOf(winnerMove, 2);
+			if(winnerMove[0]!=-1){
+			table[winnerMove[0]][winnerMove[1]]=Color.black;
+			imprimirTablero(table);
+			whoWins(false, table, idIa);
+			// hay dos posibles soluciones?
+			if(!Arrays.equals(posibleSolution,winnerMove)){
+				
+				// sabemos que hay dos soluciones
+				// solo hay que elejir la ganadora 
+				if(Arrays.equals(corner, winnerMove)||Arrays.equals(corner1, winnerMove)||Arrays.equals(corner2, winnerMove)||Arrays.equals(corner3, winnerMove)){
+					table[winnerMove[0]][winnerMove[1]]=Color.BLACK;
+					winnerMove=Arrays.copyOf(posibleSolution,2);
+				 
+				}
+				
+			}
+				// solo hay una posible solucion en winner
+				table[winnerMove[0]][winnerMove[1]]=Color.white;
+		}
 			if (winnerMove[0] != -1) {
 
 				// if (movimientosQueFaltan.isEmpty()) {
@@ -982,6 +1008,11 @@ class juego extends JPanel implements ActionListener {
 					flag = true;
 
 				} else {
+					//puede haber mas de una 
+					
+					
+					
+					
 					// caso 2
 					flag = false;
 					ArrayList<Posicion> cornersAux = opositesCorners(winnerMove);
@@ -1046,7 +1077,7 @@ class juego extends JPanel implements ActionListener {
 
 						getProperLine(tablePaint);
 						flag = false;
-						Color[][] tableAux = tableAux();
+						Color[][] tableAux = tableAux(tablePaint);
 						int iAux = movimientosQueFaltan.get(movimientosQueFaltan.size() - 1).getI() + 1;
 						int jAux = movimientosQueFaltan.get(movimientosQueFaltan.size() - 1).getJ() + 1;
 
@@ -1257,7 +1288,7 @@ class juego extends JPanel implements ActionListener {
 		int[] res = new int[2];
 		Arrays.fill(res, -1);
 
-		Color[][] table = tableAux();
+		Color[][] table = tableAux(tablePaint);
 
 		if (table[i - 1][j] == idIa && table[i - 1][j] != Color.black) {
 
@@ -1402,7 +1433,6 @@ class juego extends JPanel implements ActionListener {
 				}
 
 			}
-			return bestScore;
 		} else {
 			int bestScore = (int) Double.POSITIVE_INFINITY;
 			for (int i = 0; i < 3; i++) {
@@ -1419,6 +1449,84 @@ class juego extends JPanel implements ActionListener {
 			return bestScore;
 
 		}
-
+		return 5;
 	}
+
+    public void girar(int var){
+		//var=0 no hace nada 
+		//var=1 gira 90º
+		//var=2 gira 180º
+		//var=3 gira 270º
+		//posición girada
+		int res,aux;
+		switch (var) {
+			case 0:
+				//AQUI NO SE HACE NAAAAADAAAAAAAAA
+				aux=0;
+				break;
+			case 1:
+				
+			aux=2;
+				break;
+			case 2:
+
+			aux=4;	
+				break;
+			
+			default:
+			aux=6;
+				break;
+		}
+		
+		for(int i=1; i< 9;i++){
+			res =  (i-aux)%8;
+			correspondencia.put(i, res);
+			
+		}
+	
+	}
+    
+    
+    private ArrayList<Posicion> positionsPermited(){
+    	boolean found=false;
+    	ArrayList<Posicion> res = new ArrayList<Posicion>();
+    	Color[][] tabla = new Color[3][3];
+    	int[] elem; 
+    	
+    	for (int i = 0; i < tabla.length; i++) {
+    		
+    		tabla[i]=Arrays.copyOf(tablePaint[i],3);
+			
+		}
+    	
+    	
+    	while(!found) {
+    		
+    		elem=nearLastMov(tabla);
+    		
+    		
+    		if(elem[0]==-1) {
+    			
+    			found=true;
+    			
+    		}else {
+    			res.add(new Posicion(elem[0],elem[1]));
+    			tabla[elem[0]][elem[1]]=Color.black;
+    		}
+    		
+    		
+    	}
+    	
+    	
+    	
+    	
+    	
+    	
+    	return res;
+    	
+    }
+    
+	
 }
+
+
