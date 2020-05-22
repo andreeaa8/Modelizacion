@@ -4,7 +4,7 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
+import java.awt.Graphics;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
@@ -113,8 +113,16 @@ class marco extends JPanel implements ActionListener{
 		
 	}
 	
+	@Override
+	public void paintComponent(Graphics g) {
 
-	
-	
+		//super.paintComponent(g);
+
+		g.drawRect(50, 50, 200, 200);
+		//repaint();
+		
+		
+
+	}
 
 }

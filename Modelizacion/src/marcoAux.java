@@ -23,4 +23,9 @@ class marcoAux extends JFrame{
 		
 		
 	}
+
+	
+
+
+
 }

@@ -13,8 +13,9 @@ import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Random;
+import java.awt.BasicStroke;
 import java.util.concurrent.TimeUnit;
-
+import java.awt.Graphics2D;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -30,6 +31,7 @@ class juego extends JPanel implements ActionListener {
 	private Map<Integer,Integer> correspondencia;
 	private Color tablePaint[][];
 	private JButton botones[];
+	boolean flagFichas=false;
 	ArrayList<Posicion> movimientosQueFaltan;
 	JButton bb;
 	Color AZUL_APAGADO = new Color(192, 192, 130);
@@ -94,14 +96,14 @@ class juego extends JPanel implements ActionListener {
 			if (i % num == 0) {
 				y += ancho;
 				x = aux;
-				botones[i].setBounds(x, y, ancho, ancho);
-				p.setBounds(x, y, ancho, ancho);
+				botones[i].setBounds(x, y, ancho-5, ancho-5);
+				p.setBounds(x, y, ancho-5, ancho-5);
 
 			} else {
 
 				x += ancho;
-				botones[i].setBounds(x, y, ancho, ancho);
-				p.setBounds(x, y, ancho, ancho);
+				botones[i].setBounds(x, y, ancho-5, ancho-5);
+				p.setBounds(x, y, ancho-5, ancho-5);
 				// System.out.println("holaa");
 			}
 
@@ -249,14 +251,14 @@ class juego extends JPanel implements ActionListener {
 			if (i % num == 0) {
 				y += ancho;
 				x = aux;
-				botones[i].setBounds(x, y, ancho, ancho);
-				p.setBounds(x, y, ancho, ancho);
+				botones[i].setBounds(x, y, ancho-5, ancho-5);
+				p.setBounds(x, y, ancho-5, ancho-5);
 
 			} else {
 
 				x += ancho;
-				botones[i].setBounds(x, y, ancho, ancho);
-				p.setBounds(x, y, ancho, ancho);
+				botones[i].setBounds(x, y, ancho-5, ancho-5);
+				p.setBounds(x, y, ancho-5, ancho-5);
 				// System.out.println("holaa");
 			}
 
@@ -280,13 +282,20 @@ class juego extends JPanel implements ActionListener {
 						// quita fichas
 						// player1 id=1, player2 id=2
 
-						if (turn % 2 == humano && fichas1 > 0) {
+						if (turn % 2 == humano && fichas1 > 0 ) {
 
-							lastMov = res;
+							
 							p.setBackground(Color.red);
 							tablePaint[res[0]][res[1]] = Color.red;
+							if(!Arrays.equals(lastMov, res)){
 							turn++;
 							fichas1--;
+							lastMov = res;
+							}
+							if(fichas1==0){
+								flagFichas=true;
+							}
+							
 
 						} else if (turn % 2 == ia && fichasIa > 0) {
 							lastMov = res;
@@ -315,12 +324,13 @@ class juego extends JPanel implements ActionListener {
 						p.setBackground(Color.white);
 
 					}
-					if (panel != Color.white && turn % 2 == humano && panel == colorHumano) {
-
+					if (panel != Color.white && turn % 2 == humano && panel == colorHumano && flagFichas) {
+						
 						fichas1++;
 						lastMov = res;
 						tablePaint[res[0]][res[1]] = Color.white;
 						p.setBackground(Color.white);
+						
 
 					}
 
@@ -608,8 +618,26 @@ class juego extends JPanel implements ActionListener {
 		 */
 
 	}
-
+	@Override
 	public void paintComponent(Graphics g) {
+
+		super.paintComponent(g);
+		Graphics2D g2 = (Graphics2D)g;
+		//horizontal
+		g2.setStroke(new BasicStroke(6));
+		g2.drawLine(50, 306, 255, 306);
+		g2.drawLine(50, 238, 255, 238);
+		g2.drawLine(50, 168, 255, 168);
+		g2.drawLine(50, 98, 255, 98);
+		//vertical
+		g2.drawLine(118, 98, 118, 306);
+		g2.drawLine(188, 98, 188, 306);
+		g2.drawLine(258, 98, 258, 306);
+		g2.drawLine(48, 98, 48, 306);
+
+		//repaint();
+		
+		
 
 	}
 
