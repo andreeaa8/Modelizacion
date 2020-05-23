@@ -124,7 +124,7 @@ class juego extends JPanel implements ActionListener {
 					if (panel == Color.WHITE && !end) {
 						int res[] = conversionLineTPlain(Integer.parseInt(((JButton) e.getSource()).getName()));
 
-						if (turn % 2 == 0) {
+						if (turn % 2 == humano) {
 
 							p.setBackground(Color.red);
 							tablePaint[res[0]][res[1]] = Color.red;
@@ -149,9 +149,9 @@ class juego extends JPanel implements ActionListener {
 						} else {
 							imprimirTablero(tablePaint);
 
-							if (cpu) {
-								//minimax(tablePaint, 0, false, turn);
-								algorithm(beguin);
+							if (cpu && turn%2==ia) {
+								bestMove();
+								//algorithm(beguin);
 							}
 
 						}
@@ -1410,14 +1410,14 @@ class juego extends JPanel implements ActionListener {
 
 	public void bestMove() {
 		Color[][] colores = tablePaint.clone();
-		ArrayList<Posicion> let = new ArrayList<Posicion>();
-		int bestScore = (int) Double.NEGATIVE_INFINITY;
-		Posicion move;
+		int bestScore = Integer.MIN_VALUE;
+		Posicion move=null;
 		for (int i = 0; i < 3; i++) {
 			for (int j = 0; j < 3; j++) {
 				if (colores[i][j] == Color.white) {
 					colores[i][j] = idIa;
-					int score = minimax(colores, 0, false, turn);
+					//movimiento IA
+					int score = minimax(colores, 0, true);
 					colores[i][j] = Color.white;
 					if (score > bestScore) {
 						bestScore = score;
@@ -1428,46 +1428,45 @@ class juego extends JPanel implements ActionListener {
 			}
 		}
 
-		int randomInt = getRandomNumberRange(0, let.size() - 1);
-		move = let.get(randomInt);
-		colores[move.getI()][move.getJ()] = idIa;
-		turn += 1;
+		botones[conversionPlainToLine(move.getI(), move.getJ())].doClick();
 	}
 
-	public int minimax(Color[][] tablero, int depth, boolean isMaximizing, int turno) {
+	public int minimax(Color[][] tablero, int depth, boolean isMaximizing) {
 		Color[][] colores = tablePaint.clone();
 		boolean result = checkWin(colores); // si alguien ha ganado
-		int score;
-		if (result) { // si es que si (true)
-			if (turno % 2 == ia) {
-				score = 1;
-			} else {
-				score = -1;
-			}
-			return score;
+		if(result){
 
+		if(!draw()){
+			return isMaximizing ? -1 : 1;
+		}
+		else{
+			return 0;
+		}
 		}
 
+		int score;		
 		if (isMaximizing) {
-			int bestScore = (int) Double.NEGATIVE_INFINITY;
+			//IA true
+			int bestScore = Integer.MIN_VALUE;
 			for (int i = 0; i < 3; i++) {
 				for (int j = 0; j < 3; j++) {
 					if (colores[i][j] == Color.white) {
 						colores[i][j] = idIa;
-						score = minimax(colores, depth + 1, false, turno);
+						score = minimax(colores, depth + 1, false);
 						colores[i][j] = Color.white;
 						bestScore = Math.max(score, bestScore);
 					}
 				}
-
 			}
+			return bestScore;
 		} else {
-			int bestScore = (int) Double.POSITIVE_INFINITY;
+			//humano false
+			int bestScore = Integer.MAX_VALUE;
 			for (int i = 0; i < 3; i++) {
 				for (int j = 0; j < 3; j++) {
 					if (colores[i][j] == Color.white) {
 						colores[i][j] = colorHumano;
-						score = minimax(colores, depth + 1, true, turno);
+						score = minimax(colores, depth + 1, true);
 						colores[i][j] = Color.white;
 						bestScore = Math.min(score, bestScore);
 					}
@@ -1477,7 +1476,7 @@ class juego extends JPanel implements ActionListener {
 			return bestScore;
 
 		}
-		return 5;
+		
 	}
 
     public void girar(int var){
