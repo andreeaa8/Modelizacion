@@ -54,13 +54,15 @@ class juego extends JPanel implements ActionListener {
 		this.num = num;
 		this.mode = 0;
 		winnerMove = new int[2];
-		if (begin) {
-			colorHumano = Color.blue;
-			idIa = Color.red;
-		} else {
+		if(beguin){ //beguuuuuuuiiinnnn
+
+			humano = 1; 
+			ia = 0;
+		}
+		
 			idIa = Color.blue;
 			colorHumano = Color.red;
-		}
+		
 		System.out.println("tablero de " + num);
 		tablePaint = new Color[num][num];
 		botones = new JButton[num * num];
@@ -126,18 +128,18 @@ class juego extends JPanel implements ActionListener {
 
 						if (turn % 2 == humano) {
 
-							p.setBackground(Color.red);
-							tablePaint[res[0]][res[1]] = Color.red;
+							p.setBackground(colorHumano);
+							tablePaint[res[0]][res[1]] = colorHumano;
 							turn++;
 
 						} else {
-							p.setBackground(Color.blue);
+							p.setBackground(idIa);
 							turn++;
-							tablePaint[res[0]][res[1]] = Color.blue;
+							tablePaint[res[0]][res[1]] = idIa;
 
 						}
 
-						if (checkWin(tablePaint) || draw()) {
+						if (checkWin(tablePaint) || draw(tablePaint)) {
 							reset();
 							end = true;
 							endGame.setVisible(true);
@@ -334,7 +336,7 @@ class juego extends JPanel implements ActionListener {
 
 					}
 
-					if (checkWin(tablePaint) || draw()) {
+					if (checkWin(tablePaint) || draw(tablePaint)) {
 						reset();
 						end = true;
 						endGame.setVisible(true);
@@ -498,7 +500,7 @@ class juego extends JPanel implements ActionListener {
 							}
 
 							lastMov = res;
-							if (checkWin(tablePaint) || draw()) {
+							if (checkWin(tablePaint) || draw(tablePaint)) {
 								reset();
 								movimientosQueFaltan = new ArrayList<Posicion>();
 								end = true;
@@ -657,7 +659,7 @@ class juego extends JPanel implements ActionListener {
 			th2.join();
 			th3.join();
 			th4.join();
-			System.out.println("acabado");
+			//System.out.println("acabado");
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -827,14 +829,14 @@ class juego extends JPanel implements ActionListener {
 
 	}
 
-	private boolean draw() {
+	private boolean draw(Color[][] table) {
 		int j = 0, i = 0;
 		boolean res = true;
-		while (i < tablePaint.length && res) {
+		while (i < table.length && res) {
 
-			while (j < tablePaint[i].length && res) {
+			while (j < table[i].length && res) {
 
-				if (tablePaint[i][j] == Color.white) {
+				if (table[i][j] == Color.white) {
 
 					res = false;
 				}
@@ -1409,7 +1411,10 @@ class juego extends JPanel implements ActionListener {
 	}
 
 	public void bestMove() {
+
+		if(tablePaint[1][1]!=Color.WHITE){
 		Color[][] colores = tablePaint.clone();
+		imprimirTablero(colores);
 		int bestScore = Integer.MIN_VALUE;
 		Posicion move=null;
 		for (int i = 0; i < 3; i++) {
@@ -1417,7 +1422,7 @@ class juego extends JPanel implements ActionListener {
 				if (colores[i][j] == Color.white) {
 					colores[i][j] = idIa;
 					//movimiento IA
-					int score = minimax(colores, 0, true);
+					int score = minimax(colores, 0, false);
 					colores[i][j] = Color.white;
 					if (score > bestScore) {
 						bestScore = score;
@@ -1429,21 +1434,30 @@ class juego extends JPanel implements ActionListener {
 		}
 
 		botones[conversionPlainToLine(move.getI(), move.getJ())].doClick();
+	}else{
+			botones[4].doClick();
 	}
 
+	}
+/*
 	public int minimax(Color[][] tablero, int depth, boolean isMaximizing) {
-		Color[][] colores = tablePaint.clone();
+		Color[][] colores = tablero.clone();
+		
+		//antes de ir al bucle comprobamos si se ha acabado y quien ha ganado
 		boolean result = checkWin(colores); // si alguien ha ganado
-		if(result){
+		if(result||draw(tablero)){
 
-		if(!draw()){
+		if(result){
+			
 			return isMaximizing ? -1 : 1;
 		}
 		else{
+			//imprimirTablero(colores);
 			return 0;
 		}
 		}
 
+		// implementa alpha y beta
 		int score;		
 		if (isMaximizing) {
 			//IA true
@@ -1477,7 +1491,9 @@ class juego extends JPanel implements ActionListener {
 
 		}
 		
+		
 	}
+	*/
 
     public void girar(int var){
 		//var=0 no hace nada 
