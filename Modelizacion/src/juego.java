@@ -302,7 +302,7 @@ class juego extends JPanel implements ActionListener {
 								p.setBackground(Color.red);
 								tablePaint[res[0]][res[1]] = Color.red;
 								lastMov = res;
-							}
+							} else {
 
 							if(flagFichas){
 							ArrayList<Posicion> posiciones= positionsPermited();
@@ -336,7 +336,7 @@ class juego extends JPanel implements ActionListener {
 							fichas1--;
 							lastMov = res;
 							}
-
+						}
 							if(fichas1==0){
 								flagFichas=true;
 							}
@@ -1047,7 +1047,7 @@ class juego extends JPanel implements ActionListener {
 			if (aux[1] == 1 && aux[0] == 0 && lastMov[0] == 1 && lastMov[1] == 2) {
 
 				aux[1] += 1;
-			}
+			}      
 
 			if (aux[1] == 0 && aux[0] == 1 && lastMov[0] == 2 && lastMov[1] == 1) {
 
@@ -1070,7 +1070,7 @@ class juego extends JPanel implements ActionListener {
 			imprimirTablero(table);
 			whoWins(false, table, idIa);
 			// hay dos posibles soluciones?
-			if(!Arrays.equals(posibleSolution,winnerMove)){
+			if(!Arrays.equals(posibleSolution,winnerMove)){    
 				
 				// sabemos que hay dos soluciones
 				// solo hay que elejir la ganadora 
