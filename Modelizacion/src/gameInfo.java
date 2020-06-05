@@ -15,10 +15,10 @@ class gameInfo extends JPanel {
 			
 			if (!player2) {
 
-				textInfo = new JLabel("Ha ganado jugador 2");
+				textInfo = new JLabel("Has perdido");
 			} else {
 
-				textInfo = new JLabel("Ha ganado jugador 1");
+				textInfo = new JLabel("Has ganado");
 
 			}
 			

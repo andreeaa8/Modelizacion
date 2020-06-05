@@ -21,6 +21,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
+import javax.swing.text.Position;
 import javax.swing.text.TabableView;
 import javax.swing.text.html.HTMLDocument.HTMLReader.IsindexAction;
 
@@ -28,10 +29,10 @@ class juego extends JPanel implements ActionListener {
 
 	private Map<Integer, JButton> list;
 	private Map<Integer, JTextPane> listPane;
-	private Map<Integer,Integer> correspondencia;
+	private Map<Integer, Integer> correspondencia;
 	private Color tablePaint[][];
 	private JButton botones[];
-	boolean flagFichas=false;
+	boolean flagFichas = false;
 	ArrayList<Posicion> movimientosQueFaltan;
 	JButton bb;
 	Color AZUL_APAGADO = new Color(192, 192, 130);
@@ -54,15 +55,15 @@ class juego extends JPanel implements ActionListener {
 		this.num = num;
 		this.mode = 0;
 		winnerMove = new int[2];
-		if(beguin){ //beguuuuuuuiiinnnn
+		if (beguin) { // beguuuuuuuiiinnnn
 
-			humano = 1; 
+			humano = 1;
 			ia = 0;
 		}
-		
-			idIa = Color.blue;
-			colorHumano = Color.red;
-		
+
+		idIa = Color.blue;
+		colorHumano = Color.red;
+
 		System.out.println("tablero de " + num);
 		tablePaint = new Color[num][num];
 		botones = new JButton[num * num];
@@ -98,14 +99,14 @@ class juego extends JPanel implements ActionListener {
 			if (i % num == 0) {
 				y += ancho;
 				x = aux;
-				botones[i].setBounds(x, y, ancho-5, ancho-5);
-				p.setBounds(x, y, ancho-5, ancho-5);
+				botones[i].setBounds(x, y, ancho - 5, ancho - 5);
+				p.setBounds(x, y, ancho - 5, ancho - 5);
 
 			} else {
 
 				x += ancho;
-				botones[i].setBounds(x, y, ancho-5, ancho-5);
-				p.setBounds(x, y, ancho-5, ancho-5);
+				botones[i].setBounds(x, y, ancho - 5, ancho - 5);
+				p.setBounds(x, y, ancho - 5, ancho - 5);
 				// System.out.println("holaa");
 			}
 
@@ -151,8 +152,13 @@ class juego extends JPanel implements ActionListener {
 						} else {
 							imprimirTablero(tablePaint);
 
-							if (cpu && turn%2==ia) {
-								bestMove();
+							if (cpu && turn % 2 == ia) {
+								try {
+									bestMove();
+								} catch (InterruptedException e1) {
+									// TODO Auto-generated catch block
+									e1.printStackTrace();
+								}
 								//algorithm(beguin);
 							}
 
@@ -285,15 +291,49 @@ class juego extends JPanel implements ActionListener {
 						// player1 id=1, player2 id=2
 
 						if (turn % 2 == humano && fichas1 > 0 ) {
-
+							//--
 							
-							p.setBackground(Color.red);
-							tablePaint[res[0]][res[1]] = Color.red;
-							if(!Arrays.equals(lastMov, res)){
+							
+							if(Arrays.equals(lastMov, res)){
+							
+								p.setBackground(Color.red);
+								tablePaint[res[0]][res[1]] = Color.red;
+
+							}
+
+							if(flagFichas){
+							ArrayList<Posicion> posiciones= positionsPermited();
+							posiciones.add(new Posicion(lastMov[0], lastMov[1]));
+									
+							boolean anyPosition = false;
+						int i=0;
+						while (!anyPosition && i<posiciones.size()) {
+
+							if(res[0]==posiciones.get(i).getI() && 
+								res[1]==posiciones.get(i).getJ()){
+
+									anyPosition=true;
+
+							}
+							i++;
+						}
+							if(anyPosition){
+								p.setBackground(Color.red);
+								tablePaint[res[0]][res[1]] = Color.red;
 							turn++;
 							fichas1--;
 							lastMov = res;
 							}
+
+							}else{
+
+								p.setBackground(Color.red);
+								tablePaint[res[0]][res[1]] = Color.red;		
+							turn++;
+							fichas1--;
+							lastMov = res;
+							}
+
 							if(fichas1==0){
 								flagFichas=true;
 							}
@@ -326,17 +366,33 @@ class juego extends JPanel implements ActionListener {
 						p.setBackground(Color.white);
 
 					}
+
 					if (panel != Color.white && turn % 2 == humano && panel == colorHumano && flagFichas) {
-						
+						ArrayList<Posicion> posiciones= positionsPermited();
+						posiciones.add(new Posicion(lastMov[0], lastMov[1]));
+						boolean anyPosition = false;
+						int i=0;
+						while (!anyPosition && i<posiciones.size()) {
+
+							if(lastMov[0]==posiciones.get(i).getI() && 
+								lastMov[1]==posiciones.get(i).getJ()){
+
+									anyPosition=true;
+
+							}
+							i++;
+						}
+						if(anyPosition){
 						fichas1++;
 						lastMov = res;
 						tablePaint[res[0]][res[1]] = Color.white;
 						p.setBackground(Color.white);
-						
+						}
 
 					}
 
 					if (checkWin(tablePaint) || draw(tablePaint)) {
+						imprimirTablero(tablePaint);
 						reset();
 						end = true;
 						endGame.setVisible(true);
@@ -1410,27 +1466,78 @@ class juego extends JPanel implements ActionListener {
 		turn += 1;
 	}
 
-	public void bestMove() {
+	public void bestMove() throws InterruptedException {
 
 		if(tablePaint[1][1]!=Color.WHITE){
 		Color[][] colores = tablePaint.clone();
 		imprimirTablero(colores);
-		int bestScore = Integer.MIN_VALUE;
+		int bestScore = Integer.MIN_VALUE,bestScoreR=Integer.MIN_VALUE;
 		Posicion move=null;
+		System.out.println("--------------------------!");
 		for (int i = 0; i < 3; i++) {
-			for (int j = 0; j < 3; j++) {
-				if (colores[i][j] == Color.white) {
-					colores[i][j] = idIa;
-					//movimiento IA
-					int score = minimax(colores, 0, false);
-					colores[i][j] = Color.white;
-					if (score > bestScore) {
-						bestScore = score;
-						move = new Posicion(i, j);
+			int score1=Integer.MIN_VALUE,score2=Integer.MIN_VALUE,score3=Integer.MIN_VALUE;
 
-					}
+			minimax th1 = new minimax(colores, idIa, colorHumano);
+			minimax th2 = new minimax(colores, idIa, colorHumano);
+			minimax th3 = new minimax(colores, idIa, colorHumano);
+				if (colores[i][0] == Color.white) {
+					colores[i][0] = idIa;
+					//movimiento IA
+					th1 = new minimax(colores, idIa, colorHumano);
+					th1.start();
+					score1 = th1.getScore();
+					colores[i][0] = Color.white;
+	
 				}
+				imprimirTablero(colores);
+				if (colores[i][1] == Color.white) {
+					colores[i][1] = idIa;
+					//movimiento IA
+					th2 = new minimax(colores, idIa, colorHumano);
+					th2.start();
+					score2 = th2.getScore();
+					colores[i][1] = Color.white;
+				
+				}
+				System.out.println("--------------------------");
+				imprimirTablero(colores);
+				if (colores[i][2] == Color.white) {
+					colores[i][2] = idIa;
+					//movimiento IA
+					th3 = new minimax(colores, idIa, colorHumano);
+					th3.start();
+					
+					colores[i][2] = Color.white;
+					
+				}
+				System.out.println("--------------------------");
+				imprimirTablero(colores);
+				System.out.println("--------------------------end");
+				th1.join();
+				th2.join();
+				th3.join();
+				score3 = th3.getScore();
+				score2 = th2.getScore();
+				score1 = th1.getScore();
+				bestScore=Math.max(Math.max(score1, score2), score3);
+			if(bestScore>bestScoreR){
+				if(bestScore==score1){
+					
+					move = new Posicion(i, 0);
+				}
+				 else if(bestScore==score2){
+					
+					move = new Posicion(i, 1);
+				}else{
+				
+					move = new Posicion(i, 2);
+				}
+				bestScoreR=bestScore;
 			}
+
+				
+				
+			
 		}
 
 		botones[conversionPlainToLine(move.getI(), move.getJ())].doClick();
@@ -1533,38 +1640,28 @@ class juego extends JPanel implements ActionListener {
     private ArrayList<Posicion> positionsPermited(){
     	boolean found=false;
     	ArrayList<Posicion> res = new ArrayList<Posicion>();
-    	Color[][] tabla = new Color[3][3];
-    	int[] elem; 
-    	
-    	for (int i = 0; i < tabla.length; i++) {
-    		
-    		tabla[i]=Arrays.copyOf(tablePaint[i],3);
-			
+		Color[][] tabla = new Color[3][3];
+		for (int i = 0; i < tabla.length; i++) {
+			tabla[i]=tablePaint[i].clone();
 		}
+    	int[] elem; 
+    
     	
     	
-    	while(!found) {
+		for (int i = 0; i < 9; i++) {
+
+			elem=nearLastMov(tabla);
     		
-    		elem=nearLastMov(tabla);
-    		
-    		
-    		if(elem[0]==-1) {
+    		if(elem[0]!=-1 && tablePaint[elem[0]][elem[1]]==Color.white) {
     			
-    			found=true;
-    			
-    		}else {
     			res.add(new Posicion(elem[0],elem[1]));
     			tabla[elem[0]][elem[1]]=Color.black;
+    			
     		}
     		
-    		
-    	}
-    	
-    	
-    	
-    	
-    	
-    	
+			
+		}
+
     	return res;
     	
     }

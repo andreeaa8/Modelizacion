@@ -7,12 +7,15 @@ import java.awt.Color;
 public class minimax extends Thread {
 
     private Color[][] table;
-	private int score;
+	private int score=Integer.MIN_VALUE;
 	private Color idIa,colorHumano;
 
-    public minimax(Color[][] table , int score,Color idIa,Color colorHumano){
-        this.table=table;
-		this.score=score;
+    public minimax(Color[][] table ,Color idIa,Color colorHumano){
+		this.table= new Color[3][3];
+        for (int i = 0; i < table.length; i++) {
+			this.table[i]=table[i].clone();
+			
+		}
 		this.colorHumano=colorHumano;
 		this.idIa=idIa;
         
