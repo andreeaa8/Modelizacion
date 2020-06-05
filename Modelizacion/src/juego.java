@@ -46,9 +46,11 @@ class juego extends JPanel implements ActionListener {
 	JFrame endGame;
 	boolean end, beguin, found, cpu, movimientoFinal, flag;
 	int mode;
+	int myGame=0;
 
 	public juego(int num, boolean begin, boolean cpu) {
 		// reset();
+		myGame=0;
 		end = false;
 		this.beguin = begin;
 		this.cpu = cpu;
@@ -204,6 +206,7 @@ class juego extends JPanel implements ActionListener {
 
 	public juego(int num, boolean begin, boolean cpu, int mode) {
 		// reset();
+		myGame=0;
 		end = false;
 		this.beguin = begin;
 		this.cpu = cpu;
@@ -298,7 +301,7 @@ class juego extends JPanel implements ActionListener {
 							
 								p.setBackground(Color.red);
 								tablePaint[res[0]][res[1]] = Color.red;
-
+								lastMov = res;
 							}
 
 							if(flagFichas){
@@ -345,6 +348,7 @@ class juego extends JPanel implements ActionListener {
 							turn++;
 							tablePaint[res[0]][res[1]] = Color.blue;
 							fichasIa--;
+							lastMov = res;
 						}
 
 						for (int j = 0; j < res.length - 1; j++) {
@@ -353,7 +357,7 @@ class juego extends JPanel implements ActionListener {
 
 						}
 
-						lastMov = res;
+						
 
 					}
 
@@ -368,26 +372,12 @@ class juego extends JPanel implements ActionListener {
 					}
 
 					if (panel != Color.white && turn % 2 == humano && panel == colorHumano && flagFichas) {
-						ArrayList<Posicion> posiciones= positionsPermited();
-						posiciones.add(new Posicion(lastMov[0], lastMov[1]));
-						boolean anyPosition = false;
-						int i=0;
-						while (!anyPosition && i<posiciones.size()) {
-
-							if(lastMov[0]==posiciones.get(i).getI() && 
-								lastMov[1]==posiciones.get(i).getJ()){
-
-									anyPosition=true;
-
-							}
-							i++;
-						}
-						if(anyPosition){
+						
 						fichas1++;
 						lastMov = res;
 						tablePaint[res[0]][res[1]] = Color.white;
 						p.setBackground(Color.white);
-						}
+						
 
 					}
 
@@ -452,6 +442,7 @@ class juego extends JPanel implements ActionListener {
 	// Conecta4
 	public juego(int num, boolean begin, boolean cpu, char ch) {
 		// reset();
+		myGame=1;
 		end = false;
 		this.beguin = begin;
 		this.cpu = cpu;
@@ -504,14 +495,14 @@ class juego extends JPanel implements ActionListener {
 			if (i % 7 == 0) {
 				y += ancho;
 				x = aux;
-				botones[i].setBounds(x, y, ancho, ancho);
-				p.setBounds(x, y, ancho, ancho);
+				botones[i].setBounds(x, y, ancho-5, ancho-5);
+				p.setBounds(x, y, ancho-5, ancho-5);
 
 			} else {
 
 				x += ancho;
-				botones[i].setBounds(x, y, ancho, ancho);
-				p.setBounds(x, y, ancho, ancho);
+				botones[i].setBounds(x, y, ancho-5, ancho-5);
+				p.setBounds(x, y, ancho-5, ancho-5);
 				// System.out.println("holaa");
 			}
 
@@ -678,9 +669,10 @@ class juego extends JPanel implements ActionListener {
 	}
 	@Override
 	public void paintComponent(Graphics g) {
-
 		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D)g;
+
+		if(myGame==0){
 		//horizontal
 		g2.setStroke(new BasicStroke(6));
 		g2.drawLine(50, 306, 255, 306);
@@ -692,7 +684,29 @@ class juego extends JPanel implements ActionListener {
 		g2.drawLine(188, 98, 188, 306);
 		g2.drawLine(258, 98, 258, 306);
 		g2.drawLine(48, 98, 48, 306);
+		}else{
+		//horizontal
+		g2.setStroke(new BasicStroke(6));
+		g2.drawLine(50, 306, 536, 306);
+		g2.drawLine(50, 238, 536, 238);
+		g2.drawLine(50, 168, 536, 168);
+		g2.drawLine(50, 98, 536, 98);
 
+		g2.drawLine(50, 378, 536, 378);
+		g2.drawLine(50, 448, 536, 448);
+		g2.drawLine(48, 518, 537, 519);
+	
+		//vertical
+		g2.drawLine(118, 98, 118, 515);
+		g2.drawLine(188, 98, 188, 515);
+		g2.drawLine(258, 98, 258, 515);
+		g2.drawLine(48, 98, 48, 515);
+		
+		g2.drawLine(328, 98, 328, 515);	
+		g2.drawLine(398, 98, 398, 515);	
+		g2.drawLine(468, 98, 468, 515);	
+		g2.drawLine(538, 98, 538, 515);	
+		}
 		//repaint();
 		
 		

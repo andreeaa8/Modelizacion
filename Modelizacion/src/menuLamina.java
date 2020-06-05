@@ -18,7 +18,7 @@ class menuLamina extends JPanel {
 	JComboBox miCombo = new JComboBox();
 	JComboBox miCombo2 = new JComboBox();
 	JComboBox miCombo3 = new JComboBox();
-	JButton button;
+	//JButton button;
 
 	public menuLamina(Dimension size) {
 
@@ -30,7 +30,8 @@ class menuLamina extends JPanel {
 		
 		JLabel label = new JLabel("Modo de juego");
 		label.setMaximumSize(label.getPreferredSize());
-		button = new JButton("Ok");
+		//button = new JButton("Ok");
+		//button.setEnabled(false);
 		JLabel label1 = new JLabel();
 		label1.setText("¿Quien empieza?");
 		
@@ -53,7 +54,7 @@ class menuLamina extends JPanel {
 
 		miCombo2.setMaximumSize(miCombo2.getPreferredSize());
 		label1.setAlignmentX(miCombo2.getAlignmentX());
-		button.setAlignmentX(miCombo.getAlignmentX());
+		//button.setAlignmentX(miCombo.getAlignmentX());
 		
 		
 		
@@ -158,7 +159,7 @@ class menuLamina extends JPanel {
 		caja1.add(Box.createVerticalStrut(20));
 		caja1.add(miCombo2);
 		caja1.add(Box.createVerticalStrut(20));
-		caja1.add(button);
+		//caja1.add(button);
 
 		add(caja1);
 

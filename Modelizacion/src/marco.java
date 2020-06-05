@@ -26,7 +26,7 @@ class marco extends JPanel implements ActionListener{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
-				m.button.doClick();
+				//m.button.doClick();
 				remove(game);
 				
 				System.out.println("he entrado");
