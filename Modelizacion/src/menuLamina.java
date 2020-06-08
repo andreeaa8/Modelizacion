@@ -36,8 +36,8 @@ class menuLamina extends JPanel {
 		label1.setText("¿Quien empieza?");
 		
 		miCombo.addItem("3 en raya");
-		miCombo.addItem("4 en raya");
-		miCombo.addItem("nuevo modo");
+		//miCombo.addItem("4 en raya");
+		miCombo.addItem("3 en raya (3 fichas)");
 		
 		miCombo3.addItem("CPU");
 		miCombo3.addItem("sin CPU");

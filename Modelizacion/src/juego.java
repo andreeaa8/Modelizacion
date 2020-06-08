@@ -1084,6 +1084,7 @@ class juego extends JPanel implements ActionListener {
 				// solo hay una posible solucion en winner
 				table[winnerMove[0]][winnerMove[1]]=Color.white;
 		}
+		
 			if (winnerMove[0] != -1) {
 
 				// if (movimientosQueFaltan.isEmpty()) {
